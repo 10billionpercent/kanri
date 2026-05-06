@@ -1,1 +1,3 @@
-# kanri
+# Kanri
+
+Testing Kriozen Tech Stack
