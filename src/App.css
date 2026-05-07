@@ -1,0 +1,141 @@
+.signup-shell {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.signup-panel {
+  width: min(100%, 420px);
+  padding: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+  box-sizing: border-box;
+  text-align: left;
+  backdrop-filter: blur(18px);
+}
+
+.signup-panel h1 {
+  margin: 0;
+  font-size: 42px;
+  line-height: 1;
+  font-family: var(--heading-font);
+}
+
+.tagline {
+  font-style: italic;
+}
+
+.signup-copy {
+  margin: 14px 0 28px;
+  color: var(--text);
+  font-size: 16px;
+  font-family: var(--body-font);
+}
+
+.local-form {
+  display: grid;
+  gap: 12px;
+}
+
+.local-form label {
+  color: var(--text-h);
+  font-size: 15px;
+  font-weight: 700;
+  font-family: var(--body-font);
+}
+
+.local-form input {
+  min-height: 46px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-h);
+  background: var(--bg);
+  font: inherit;
+  font-size: 16px;
+  box-sizing: border-box;
+  font-family: var(--body-font);
+}
+
+.local-form input:focus {
+  border-color: var(--accent);
+  outline: 3px solid var(--accent-bg);
+}
+
+.local-form button,
+.google-button {
+  min-height: 46px;
+  border: 0;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: var(--body-font);
+}
+
+.local-form button {
+  color: #fff;
+  background: var(--text-h);
+}
+
+.local-form button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 22px 0;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  height: 1px;
+  flex: 1;
+  background: var(--border);
+}
+
+.google-button {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #1f1f1f;
+  background: #fff;
+  border: 1px solid #dadce0;
+}
+
+.auth-status {
+  margin-top: 16px;
+  color: var(--text);
+  font-size: 13px;
+  text-align: center;
+  font-family: var(--body-font);
+}
+
+@media (prefers-color-scheme: dark) {
+  .signup-panel {
+    background: rgba(22, 23, 29, 0.9);
+  }
+}
+
+@media (max-width: 520px) {
+  .signup-panel {
+    padding: 24px;
+  }
+
+  .signup-panel h1 {
+    font-size: 34px;
+  }
+}
