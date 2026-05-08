@@ -5,6 +5,10 @@
     --purple-dark: #4f015e;
     --blue-dark: #01395e;
     --green-dark: #035e01;
+    --background: #011420;
+    --body: #dce4e9;
+    --heading: #a2daff;
+    --blue-light-soft: rgba(93, 221, 255, 0.18);
     --body-font: 'Ubuntu Sans';
     --heading-font: 'Prata';
 }
