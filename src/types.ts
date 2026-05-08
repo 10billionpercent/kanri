@@ -1,36 +1,65 @@
 export interface UserCredentials {
-    username: string;
-    password: string;
+  username: string;
+  password: string;
 }
 
 export const TaskPriorities = {
-  Low: 1,
-  Medium: 2,
-  High: 3,
+  Low: "low",
+  Medium: "medium",
+  High: "high",
 } as const;
 
-export type TaskPriority = typeof TaskPriorities[keyof typeof TaskPriorities];
+export type TaskPriority =
+  typeof TaskPriorities[keyof typeof TaskPriorities];
+
+export const TaskStatuses = {
+  Todo: "todo",
+  Doing: "doing",
+  Done: "done",
+} as const;
+
+export type TaskStatus =
+  typeof TaskStatuses[keyof typeof TaskStatuses];
+
+export interface Project {
+  id: string;
+
+  name: string;
+  description?: string;
+
+  createdAt: string;
+  updatedAt: string;
+}
 
 export interface Task {
-    name: string;
-    description?: string;
-    priority: TaskPriority;
-    projectID: string;    
+  id: string;
+
+  projectID: string;
+
+  name: string;
+  description?: string;
+
+  priority: TaskPriority;
+  status: TaskStatus;
+
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Document {
-    name: string;
-    content: string;
-}
+  id: string;
 
-export interface Project {
-    name: string;
-    description?: string;
-    tasks: Task[];
-    docs: Document[];  
-    user: string;  
+  projectID: string;
+
+  name: string;
+  content: string;
+
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface UserData {
-    projects: Project[];
+  projects: Project[];
+  tasks: Task[];
+  docs: Document[];
 }
