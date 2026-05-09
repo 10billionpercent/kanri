@@ -1,8 +1,4 @@
 .kanri-task {
-  display: grid;
-  grid-template-columns: 32px minmax(0, 1fr) 32px;
-  align-items: start;
-  gap: 10px;
   padding: 12px;
   border: 1px solid color-mix(in srgb, var(--column-color) 24%, transparent);
   border-radius: 6px;
@@ -12,46 +8,40 @@
 }
 
 .kanri-task__content {
-  display: grid;
-  gap: 6px;
-  min-width: 0;
-}
-
-.kanri-task__title-row {
   display: flex;
-  align-items: start;
-  justify-content: space-between;
-  gap: 10px;
-  min-width: 0;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
 }
 
 .kanri-task__title {
   margin: 0;
+  width: 100%;
   color: var(--body);
   font-size: 16px;
   font-weight: 800;
   line-height: 1.25;
-  overflow-wrap: anywhere;
-}
-
-.kanri-task__description {
-  margin: 0;
-  color: color-mix(in srgb, var(--body) 74%, transparent);
-  font-size: 14px;
-  line-height: 1.4;
+  text-align: left;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 
 .kanri-task__actions {
   display: flex;
-  flex: 0 0 auto;
+  flex-wrap: wrap;
   gap: 6px;
+  justify-content: flex-start;
 }
 
-.kanri-task__move-slot {
-  width: 32px;
-  min-height: 32px;
-  display: grid;
-  place-items: center;
+.kanri-task__description {
+  margin: 0;
+  width: 100%;
+  color: color-mix(in srgb, var(--body) 74%, transparent);
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: left;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 
 .kanri-task__button {

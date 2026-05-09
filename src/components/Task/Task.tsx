@@ -11,64 +11,82 @@ type TaskProps = {
   onMoveRight?: (task: TaskData) => void;
 };
 
-function Task({ task, onEdit, onDelete, onMoveLeft, onMoveRight }: TaskProps) {
+function Task({
+  task,
+  onEdit,
+  onDelete,
+  onMoveLeft,
+  onMoveRight,
+}: TaskProps) {
   const canMoveLeft =
-    task.status === TaskStatuses.Doing || task.status === TaskStatuses.Done;
+    task.status === TaskStatuses.Doing ||
+    task.status === TaskStatuses.Done;
+
   const canMoveRight =
-    task.status === TaskStatuses.Todo || task.status === TaskStatuses.Doing;
+    task.status === TaskStatuses.Todo ||
+    task.status === TaskStatuses.Doing;
 
   return (
     <article className="kanri-task">
-      <div className="kanri-task__move-slot">
-        {canMoveLeft && (
+      <div className="kanri-task__content">
+        <h3 className="kanri-task__title">{task.name}</h3>
+
+        <div
+          className="kanri-task__actions"
+          aria-label={`${task.name} actions`}
+        >
+          {canMoveLeft && (
+            <button
+              type="button"
+              className="kanri-task__button kanri-task__button--move"
+              onClick={() => onMoveLeft?.(task)}
+              aria-label={`Move ${task.name} left`}
+            >
+              <Triangle
+                className="kanri-task__triangle--left"
+                size={16}
+                fill="currentColor"
+              />
+            </button>
+          )}
+
           <button
             type="button"
-            className="kanri-task__button kanri-task__button--move"
-            onClick={() => onMoveLeft?.(task)}
-            aria-label={`Move ${task.name} left`}
+            className="kanri-task__button"
+            onClick={() => onEdit?.(task)}
+            aria-label={`Edit ${task.name}`}
           >
-            <Triangle className="kanri-task__triangle--left" size={16} fill="currentColor" />
+            <Edit3 size={15} />
           </button>
-        )}
-      </div>
 
-      <div className="kanri-task__content">
-        <div className="kanri-task__title-row">
-          <h3 className="kanri-task__title">{task.name}</h3>
-          <div className="kanri-task__actions" aria-label={`${task.name} actions`}>
+          <button
+            type="button"
+            className="kanri-task__button"
+            onClick={() => onDelete?.(task)}
+            aria-label={`Delete ${task.name}`}
+          >
+            <Trash2 size={15} />
+          </button>
+
+          {canMoveRight && (
             <button
               type="button"
-              className="kanri-task__button"
-              onClick={() => onEdit?.(task)}
-              aria-label={`Edit ${task.name}`}
+              className="kanri-task__button kanri-task__button--move"
+              onClick={() => onMoveRight?.(task)}
+              aria-label={`Move ${task.name} right`}
             >
-              <Edit3 size={15} />
+              <Triangle
+                className="kanri-task__triangle--right"
+                size={16}
+                fill="currentColor"
+              />
             </button>
-            <button
-              type="button"
-              className="kanri-task__button"
-              onClick={() => onDelete?.(task)}
-              aria-label={`Delete ${task.name}`}
-            >
-              <Trash2 size={15} />
-            </button>
-          </div>
+          )}
         </div>
         {task.description && (
-          <p className="kanri-task__description">{task.description}</p>
-        )}
-      </div>
-
-      <div className="kanri-task__move-slot">
-        {canMoveRight && (
-          <button
-            type="button"
-            className="kanri-task__button kanri-task__button--move"
-            onClick={() => onMoveRight?.(task)}
-            aria-label={`Move ${task.name} right`}
-          >
-            <Triangle className="kanri-task__triangle--right" size={16} fill="currentColor" />
-          </button>
+          <p className="kanri-task__description">
+            {task.description}
+          </p>
         )}
       </div>
     </article>

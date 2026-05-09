@@ -24,7 +24,7 @@ function Column({ title, color, tasks }: ColumnProps) {
     >
       <header className="kanri-column__header">
         <h2 className="kanri-column__title">
-          {formattedTitle} / {tasks.length}
+          {formattedTitle} 
         </h2>
         <button
           type="button"
