@@ -10,9 +10,21 @@ type ColumnProps = {
   title: "todo" | "doing" | "done";
   color: string;
   tasks: Task[];
+  onEdit?: (task: Task) => void;
+  onDelete?: (task: Task) => void;
+  onMoveLeft?: (task: Task) => void;
+  onMoveRight?: (task: Task) => void;
 };
 
-function Column({ title, color, tasks }: ColumnProps) {
+function Column({
+  title,
+  color,
+  tasks,
+  onEdit,
+  onDelete,
+  onMoveLeft,
+  onMoveRight,
+}: ColumnProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const formattedTitle = title.toUpperCase();
 
@@ -23,9 +35,8 @@ function Column({ title, color, tasks }: ColumnProps) {
       aria-label={`${formattedTitle} tasks`}
     >
       <header className="kanri-column__header">
-        <h2 className="kanri-column__title">
-          {formattedTitle} 
-        </h2>
+        <h2 className="kanri-column__title">{formattedTitle}</h2>
+
         <button
           type="button"
           className="kanri-column__toggle"
@@ -65,16 +76,42 @@ function Column({ title, color, tasks }: ColumnProps) {
               {tasks.length === 0 ? (
                 <p className="kanri-column__empty">No tasks here yet.</p>
               ) : (
-                tasks.map((task) => (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    onEdit={(selectedTask) => console.log("Edit task:", selectedTask)}
-                    onDelete={(selectedTask) => console.log("Delete task:", selectedTask)}
-                    onMoveLeft={(selectedTask) => console.log("Move task left:", selectedTask)}
-                    onMoveRight={(selectedTask) => console.log("Move task right:", selectedTask)}
-                  />
-                ))
+                <AnimatePresence mode="popLayout">
+  {tasks.map((task) => (
+    <motion.div
+      key={task.id}
+      layout
+      initial={{
+        opacity: 0,
+        y: -6,
+        height: 0,
+      }}
+      animate={{
+        opacity: 1,
+        y: 0,
+        height: "auto",
+      }}
+      exit={{
+        opacity: 0,
+        y: -6,
+        height: 0,
+      }}
+      transition={{
+        duration: 0.6,
+        ease: [0.16, 1, 0.3, 1],
+      }}
+      style={{ overflow: "hidden" }}
+    >
+      <TaskCard
+        task={task}
+        onEdit={onEdit}
+        onDelete={onDelete}
+        onMoveLeft={onMoveLeft}
+        onMoveRight={onMoveRight}
+      />
+    </motion.div>
+  ))}
+</AnimatePresence>
               )}
             </motion.div>
           </motion.div>

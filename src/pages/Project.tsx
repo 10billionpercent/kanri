@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Column from "../components/Column/Column";
 import { TaskPriorities, TaskStatuses } from "../types";
 import type { Task } from "../types";
@@ -43,11 +44,83 @@ const dummyTasks: Task[] = [
   },
 ];
 
-function getTasksByStatus(status: Task["status"]) {
-  return dummyTasks.filter((task) => task.status === status);
-}
-
 function Project() {
+  const [tasks, setTasks] = useState<Task[]>(dummyTasks);
+
+  function getTasksByStatus(status: Task["status"]) {
+    return tasks.filter((task) => task.status === status);
+  }
+
+  function handleMoveLeft(taskToMove: Task) {
+    setTasks((currentTasks) =>
+      currentTasks.map((task) => {
+        if (task.id !== taskToMove.id) return task;
+
+        let newStatus = task.status;
+
+        if (task.status === TaskStatuses.Doing) {
+          newStatus = TaskStatuses.Todo;
+        } else if (task.status === TaskStatuses.Done) {
+          newStatus = TaskStatuses.Doing;
+        }
+
+        return {
+          ...task,
+          status: newStatus,
+          updatedAt: new Date().toISOString(),
+        };
+      })
+    );
+  }
+
+  function handleMoveRight(taskToMove: Task) {
+    setTasks((currentTasks) =>
+      currentTasks.map((task) => {
+        if (task.id !== taskToMove.id) return task;
+
+        let newStatus = task.status;
+
+        if (task.status === TaskStatuses.Todo) {
+          newStatus = TaskStatuses.Doing;
+        } else if (task.status === TaskStatuses.Doing) {
+          newStatus = TaskStatuses.Done;
+        }
+
+        return {
+          ...task,
+          status: newStatus,
+          updatedAt: new Date().toISOString(),
+        };
+      })
+    );
+  }
+
+  function handleDelete(taskToDelete: Task) {
+    setTasks((currentTasks) =>
+      currentTasks.filter((task) => task.id !== taskToDelete.id)
+    );
+  }
+
+  function handleEdit(taskToEdit: Task) {
+    const newName = window.prompt("Edit task name", taskToEdit.name);
+
+    if (!newName || !newName.trim()) {
+      return;
+    }
+
+    setTasks((currentTasks) =>
+      currentTasks.map((task) =>
+        task.id === taskToEdit.id
+          ? {
+              ...task,
+              name: newName.trim(),
+              updatedAt: new Date().toISOString(),
+            }
+          : task
+      )
+    );
+  }
+
   return (
     <main className="min-h-svh p-4 sm:p-6">
       <section className="mx-auto grid w-full max-w-6xl items-start gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -55,16 +128,30 @@ function Project() {
           title="todo"
           color="var(--purple-light)"
           tasks={getTasksByStatus(TaskStatuses.Todo)}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onMoveLeft={handleMoveLeft}
+          onMoveRight={handleMoveRight}
         />
+
         <Column
           title="doing"
           color="var(--blue-light)"
           tasks={getTasksByStatus(TaskStatuses.Doing)}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onMoveLeft={handleMoveLeft}
+          onMoveRight={handleMoveRight}
         />
+
         <Column
           title="done"
           color="var(--green-light)"
           tasks={getTasksByStatus(TaskStatuses.Done)}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onMoveLeft={handleMoveLeft}
+          onMoveRight={handleMoveRight}
         />
       </section>
     </main>

@@ -83,10 +83,9 @@ function Task({
             </button>
           )}
         </div>
+
         {task.description && (
-          <p className="kanri-task__description">
-            {task.description}
-          </p>
+          <p className="kanri-task__description">{task.description}</p>
         )}
       </div>
     </article>
