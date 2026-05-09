@@ -61,12 +61,3 @@
   font-family: var(--body-font);
   font-size: 14px;
 }
-
-.kanri-column__task {
-  padding: 12px;
-  border: 1px solid color-mix(in srgb, var(--column-color) 24%, transparent);
-  border-radius: 6px;
-  color: var(--body);
-  background: color-mix(in srgb, var(--background) 82%, black);
-  font-family: var(--body-font);
-}

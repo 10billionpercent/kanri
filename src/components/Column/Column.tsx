@@ -3,6 +3,7 @@ import type { CSSProperties } from "react";
 import { ChevronDown } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { Task } from "../../types";
+import TaskCard from "../Task/Task";
 import "./Column.css";
 
 type ColumnProps = {
@@ -65,9 +66,14 @@ function Column({ title, color, tasks }: ColumnProps) {
                 <p className="kanri-column__empty">No tasks here yet.</p>
               ) : (
                 tasks.map((task) => (
-                  <article className="kanri-column__task" key={task.id}>
-                    {task.name}
-                  </article>
+                  <TaskCard
+                    key={task.id}
+                    task={task}
+                    onEdit={(selectedTask) => console.log("Edit task:", selectedTask)}
+                    onDelete={(selectedTask) => console.log("Delete task:", selectedTask)}
+                    onMoveLeft={(selectedTask) => console.log("Move task left:", selectedTask)}
+                    onMoveRight={(selectedTask) => console.log("Move task right:", selectedTask)}
+                  />
                 ))
               )}
             </motion.div>
