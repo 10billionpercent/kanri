@@ -123,11 +123,20 @@
   font-size: 16px;
   box-sizing: border-box;
   font-family: var(--body-font);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .signup-form input:focus {
+  outline: none;
   border-color: var(--blue-light);
-  outline: 3px solid var(--blue-light-soft);
+  box-shadow: 0 0 0 3px
+    color-mix(
+      in srgb,
+      var(--blue-light) 18%,
+      transparent
+    );
 }
 
 .signup-form button,

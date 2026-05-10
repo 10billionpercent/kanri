@@ -1,4 +1,4 @@
-import { type SyntheticEvent, useEffect, useState } from 'react'
+import { type SyntheticEvent, useEffect, useState, useRef } from 'react'
 import googleLogo from '../assets/google-logo.svg'
 import '../App.css'
 import { useDispatch } from 'react-redux'
@@ -37,10 +37,13 @@ function Signup() {
   const [name, setName] = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [nameNotice, setNameNotice] = useState('')
   const [googleStatus, setGoogleStatus] = useState(() =>
     googleClientId ? 'Ready to sync with Google' : 'Add VITE_GOOGLE_CLIENT_ID to .env',
   )
+
+  const nameInputRef = useRef<HTMLInputElement>(null)
+  const usernameInputRef = useRef<HTMLInputElement>(null)
+  const passwordInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (!googleClientId) {
@@ -83,7 +86,7 @@ function Signup() {
   const trimmedName = name.trim();
 
   if (!trimmedName) {
-    setNameNotice("Enter your name");
+    nameInputRef.current?.focus()
     return;
   }
 
@@ -98,10 +101,44 @@ function Signup() {
   navigate("/project");
 };
 
-  const createSyncAccount = (event: SyntheticEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    console.log('Create sync account:', { username, password })
+const createSyncAccount = async (
+  event: SyntheticEvent<HTMLFormElement>,
+) => {
+  event.preventDefault()
+
+  const trimmedUsername = username.trim()
+  const trimmedPassword = password.trim()
+
+  // Focus username first if empty
+  if (!trimmedUsername) {
+    usernameInputRef.current?.focus()
+    return
   }
+
+  // Then focus password if empty
+  if (!trimmedPassword) {
+    passwordInputRef.current?.focus()
+    return
+  }
+
+  // Optional minimum length check
+  if (trimmedPassword.length < 8) {
+    passwordInputRef.current?.focus()
+    passwordInputRef.current?.select()
+    return
+  }
+
+  const user = {
+    name: trimmedUsername,
+    username: trimmedUsername,
+    authMode: 'account' as const,
+  }
+
+  dispatch(setUser(user))
+  await saveUser(user)
+
+  navigate('/project')
+}
 
   const signInWithGoogle = () => {
     if (!googleClientId) {
@@ -119,7 +156,6 @@ function Signup() {
           <div>
             <div className="brand-row">
               <img src="src/assets/kanri-logo.png" width="80" height="80" alt="Kanri logo" />
-              {nameNotice && <p className="name-notice">{nameNotice}</p>}
             </div>
             <h1>Kanri</h1>
             <p className="tagline">
@@ -131,13 +167,13 @@ function Signup() {
             <form className="signup-form" onSubmit={continueLocally}>
               <label htmlFor="name">What should we call you?</label>
               <input
+                ref={nameInputRef}
                 id="name"
                 name="name"
                 type="text"
                 value={name}
                 onChange={(event) => {
                   setName(event.target.value)
-                  setNameNotice('')
                 }}
                 placeholder="Sankarsana"
                 autoComplete="given-name"
@@ -154,6 +190,7 @@ function Signup() {
             <form className="signup-form" onSubmit={createSyncAccount}>
               <label htmlFor="username">Username (only letters and numbers)</label>
               <input
+                ref={usernameInputRef}
                 id="username"
                 name="username"
                 type="text"
@@ -166,6 +203,7 @@ function Signup() {
               />
               <label htmlFor="password">Password (at least 8 characters)</label>
               <input
+                ref={passwordInputRef}
                 id="password"
                 name="password"
                 type="password"
