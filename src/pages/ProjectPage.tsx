@@ -53,7 +53,7 @@ const dummyTasks: Task[] = [
   },
 ];
 
-function Project() {
+function ProjectPage() {
   const [tasks, setTasks] = useState<Task[]>(dummyTasks);
 
   function getTasksByStatus(status: Task["status"]) {
@@ -136,7 +136,6 @@ function Project() {
         <ProjectHeader
           project={dummyProject}
           tasks={tasks}
-          userName="Sankarsana"
           phrase="Keep moving."
         />
 
@@ -176,4 +175,4 @@ function Project() {
   );
 }
 
-export default Project;
+export default ProjectPage;

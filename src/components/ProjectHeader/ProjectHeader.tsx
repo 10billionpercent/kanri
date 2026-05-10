@@ -1,20 +1,29 @@
+import { motion } from "framer-motion";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import type { RootState, AppDispatch } from "../../store";
+import { clearUser } from "../../reducers/userReducer";
 import "./ProjectHeader.css";
 import type { Project, Task } from "../../types";
 import { TaskStatuses } from "../../types";
+import { clearUser as clearStoredUser } from "../../db";
 
 type ProjectHeaderProps = {
   project: Project;
   tasks: Task[];
-  userName: string;
   phrase: string;
 };
 
 function ProjectHeader({
   project,
   tasks,
-  userName,
   phrase,
 }: ProjectHeaderProps) {
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
+  const user = useSelector((state: RootState) => state.user);
+  const userName = user?.name || user?.username || "there";
+
   const todoCount = tasks.filter(
     (task) => task.status === TaskStatuses.Todo
   ).length;
@@ -29,39 +38,69 @@ function ProjectHeader({
 
   const totalCount = tasks.length;
 
-  const getStatText = () => {
-    // If all tasks are completed
+  async function handleLogout() {
+  try {
+    await clearStoredUser(); 
+  } catch (error) {
+    console.error("Failed to clear stored user:", error);
+  }
+
+  dispatch(clearUser()); 
+  navigate("/signup");
+}
+
+  function getStatText() {
     if (totalCount > 0 && doneCount === totalCount) {
       return `${project.name} • ${doneCount} done`;
     }
 
-    // If there are tasks currently being worked on
     if (doingCount > 0) {
       return `${project.name} • ${doingCount} in progress`;
     }
 
-    // If there are pending tasks
     if (todoCount > 0) {
       return `${project.name} • ${todoCount} to do`;
     }
 
-    // Empty project
     return `${project.name} • 0 total`;
-  };
+  }
 
   return (
     <header className="project-header">
       <h1 className="project-header__greeting">
-        Good evening, {userName}.
+        Good evening,{" "}
+        <motion.span
+          className="project-header__name"
+          initial={{
+            opacity: 0,
+            y: 6,
+            filter: "blur(4px)",
+          }}
+          animate={{
+            opacity: 1,
+            y: 0,
+            filter: "blur(0px)",
+          }}
+          transition={{
+            duration: 0.7,
+            delay: 0.15,
+            ease: "easeOut",
+          }}
+        >
+          {userName}.
+        </motion.span>
       </h1>
 
-      <p className="project-header__phrase">
-        {phrase}
-      </p>
+      <p className="project-header__phrase">{phrase}</p>
 
-      <p className="project-header__stat">
-        {getStatText()}
-      </p>
+      <p className="project-header__stat">{getStatText()}</p>
+      <button
+  type="button"
+  className="project-header__logout"
+  onClick={handleLogout}
+>
+  Log out
+</button>
     </header>
   );
 }

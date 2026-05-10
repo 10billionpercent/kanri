@@ -1,6 +1,11 @@
-import { type FormEvent, useEffect, useState } from 'react'
+import { type SyntheticEvent, useEffect, useState } from 'react'
 import googleLogo from '../assets/google-logo.svg'
 import '../App.css'
+import { useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+import type { AppDispatch } from '../store'
+import { setUser } from '../reducers/userReducer'
+import { saveUser } from '../db'
 
 type GoogleCredentialResponse = {
   credential: string
@@ -26,6 +31,9 @@ declare global {
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID?.trim() ?? ''
 
 function Signup() {
+  const dispatch = useDispatch<AppDispatch>()
+  const navigate = useNavigate()
+
   const [name, setName] = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -67,21 +75,30 @@ function Signup() {
     document.head.appendChild(script)
   }, [])
 
-  const continueLocally = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+  const continueLocally = async (
+  event: SyntheticEvent<HTMLFormElement>
+) => {
+  event.preventDefault();
 
-    const trimmedName = name.trim()
+  const trimmedName = name.trim();
 
-    if (!trimmedName) {
-      setNameNotice('Enter your name')
-      return
-    }
-
-    setNameNotice('')
-    localStorage.setItem('kanri:userName', trimmedName)
+  if (!trimmedName) {
+    setNameNotice("Enter your name");
+    return;
   }
 
-  const createSyncAccount = (event: FormEvent<HTMLFormElement>) => {
+  const user = {
+    name: trimmedName,
+    authMode: "local" as const,
+  };
+
+  dispatch(setUser(user));
+  await saveUser(user);
+
+  navigate("/project");
+};
+
+  const createSyncAccount = (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault()
     console.log('Create sync account:', { username, password })
   }
