@@ -68,8 +68,8 @@
   background-image: linear-gradient(
     90deg,
     var(--purple-light) 0%,
-    var(--blue-light) 15%,
-    var(--green-light) 30%
+    var(--blue-light) 10%,
+    var(--green-light) 20%
   );
   background-clip: text;
   -webkit-background-clip: text;
