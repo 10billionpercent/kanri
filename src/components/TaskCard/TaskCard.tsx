@@ -1,7 +1,7 @@
 import { Edit3, Trash2, Triangle } from "lucide-react";
 import type { Task as TaskData } from "../../types";
 import { Star } from "lucide-react";
-import { TaskStatuses } from "../../types";
+import { TaskStatuses, priorityOrder } from "../../types";
 import "./TaskCard.css";
 
 type TaskProps = {
@@ -27,7 +27,15 @@ function Task({
     task.status === TaskStatuses.Todo ||
     task.status === TaskStatuses.Doing;
 
-  console.log(task)
+  const starCount =
+  priorityOrder.indexOf(task.priority) + 1;
+
+  const priorityColor =
+  task.status === TaskStatuses.Todo
+    ? "var(--purple-light)"
+    : task.status === TaskStatuses.Doing
+      ? "var(--blue-light)"
+      : "var(--green-light)";
 
   return (
     <article className="kanri-task">
@@ -38,6 +46,9 @@ function Task({
           className="kanri-task__actions"
           aria-label={`${task.name} actions`}
         >
+          {Array.from({ length: starCount }).map((_, index) => (
+          <Star key={index} size={16} fill="currentColor" style={{ color: priorityColor }}/>
+          ))}
           {canMoveLeft && (
             <button
               type="button"

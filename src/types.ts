@@ -12,6 +12,12 @@ export const TaskPriorities = {
 export type TaskPriority =
   typeof TaskPriorities[keyof typeof TaskPriorities];
 
+export const priorityOrder = [
+  TaskPriorities.Low,
+  TaskPriorities.Medium,
+  TaskPriorities.High,
+] as const;
+
 export const TaskStatuses = {
   Todo: "todo",
   Doing: "doing",
