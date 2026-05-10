@@ -15,7 +15,7 @@ function TaskComposer({ onAdd }: TaskComposerProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [priority, setPriority] = useState<1 | 2 | 3>(2); // default = medium
+  const [priority, setPriority] = useState<1 | 2 | 3>(2); 
 
   const titleRef = useRef<HTMLInputElement>(null);
 

@@ -77,7 +77,6 @@ function Column({
               exit={{ opacity: 0, y: -4 }}
               transition={{ duration: 0.4, ease: "easeOut" }}
             >
-              {/* Show TaskComposer only in TODO column */}
               {isTodoColumn && onAddTask && (
                 <TaskComposer onAdd={onAddTask} />
               )}

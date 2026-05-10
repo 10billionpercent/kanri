@@ -1,8 +1,12 @@
-import { useState } from "react";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import Column from "../components/Column/Column";
 import ProjectHeader from "../components/ProjectHeader/ProjectHeader";
 import { TaskPriorities, TaskStatuses } from "../types";
 import type { Project, Task } from "../types";
+import { loadTasks, saveTasks } from "../db";
+import type { RootState, AppDispatch } from "../store";
+import { addTask, deleteTask, setTasks, updateTask } from "../reducers/taskReducer";
 
 const dummyProject: Project = {
   id: "project-kanri",
@@ -54,60 +58,78 @@ const dummyTasks: Task[] = [
 ];
 
 function ProjectPage() {
-  const [tasks, setTasks] = useState<Task[]>(dummyTasks);
+  const tasks = useSelector((state: RootState) => state.tasks);
+  const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(() => {
+  async function initializeTasks() {
+    const savedTasks = await loadTasks();
+
+    if (savedTasks.length > 0) {
+      dispatch(setTasks(savedTasks));
+    } else {
+      dispatch(setTasks(dummyTasks));
+      await saveTasks(dummyTasks);
+    }
+  }
+
+  initializeTasks();
+}, [dispatch]);
 
   function getTasksByStatus(status: Task["status"]) {
     return tasks.filter((task) => task.status === status);
   }
 
   function handleMoveLeft(taskToMove: Task) {
-    setTasks((currentTasks) =>
-      currentTasks.map((task) => {
-        if (task.id !== taskToMove.id) return task;
+  let newStatus = taskToMove.status;
 
-        let newStatus = task.status;
-
-        if (task.status === TaskStatuses.Doing) {
-          newStatus = TaskStatuses.Todo;
-        } else if (task.status === TaskStatuses.Done) {
-          newStatus = TaskStatuses.Doing;
-        }
-
-        return {
-          ...task,
-          status: newStatus,
-          updatedAt: new Date().toISOString(),
-        };
-      })
-    );
+  if (taskToMove.status === TaskStatuses.Doing) {
+    newStatus = TaskStatuses.Todo;
+  } else if (taskToMove.status === TaskStatuses.Done) {
+    newStatus = TaskStatuses.Doing;
   }
 
-  function handleMoveRight(taskToMove: Task) {
-    setTasks((currentTasks) =>
-      currentTasks.map((task) => {
-        if (task.id !== taskToMove.id) return task;
+  const updatedTask: Task = {
+    ...taskToMove,
+    status: newStatus,
+    updatedAt: new Date().toISOString(),
+  };
 
-        let newStatus = task.status;
+  dispatch(updateTask(updatedTask));
 
-        if (task.status === TaskStatuses.Todo) {
-          newStatus = TaskStatuses.Doing;
-        } else if (task.status === TaskStatuses.Doing) {
-          newStatus = TaskStatuses.Done;
-        }
+  const updatedTasks = tasks.map((task) =>
+    task.id === updatedTask.id ? updatedTask : task
+  );
 
-        return {
-          ...task,
-          status: newStatus,
-          updatedAt: new Date().toISOString(),
-        };
-      })
-    );
+  saveTasks(updatedTasks);
+}
+
+function handleMoveRight(taskToMove: Task) {
+  let newStatus = taskToMove.status;
+
+  if (taskToMove.status === TaskStatuses.Todo) {
+    newStatus = TaskStatuses.Doing;
+  } else if (taskToMove.status === TaskStatuses.Doing) {
+    newStatus = TaskStatuses.Done;
   }
+
+  const updatedTask: Task = {
+    ...taskToMove,
+    status: newStatus,
+    updatedAt: new Date().toISOString(),
+  };
+
+  dispatch(updateTask(updatedTask));
+
+  const updatedTasks = tasks.map((task) =>
+    task.id === updatedTask.id ? updatedTask : task
+  );
+
+  saveTasks(updatedTasks);
+}
 
   function handleDelete(taskToDelete: Task) {
-    setTasks((currentTasks) =>
-      currentTasks.filter((task) => task.id !== taskToDelete.id)
-    );
+    dispatch(deleteTask(taskToDelete.id));
   }
 
   function handleEdit(taskToEdit: Task) {
@@ -117,20 +139,15 @@ function ProjectPage() {
       return;
     }
 
-    setTasks((currentTasks) =>
-      currentTasks.map((task) =>
-        task.id === taskToEdit.id
-          ? {
-              ...task,
-              name: newName.trim(),
-              updatedAt: new Date().toISOString(),
-            }
-          : task
-      )
-    );
+    const updatedTask = {
+      ...taskToEdit,
+      name: newName.trim(),
+      updatedAt: new Date().toISOString(),
+      }
+      dispatch(updateTask(updatedTask));
   }
 
-  function handleAddTask(title: string, description: string) {
+  async function handleAddTask(title: string, description: string) {
   const newTask: Task = {
     id: crypto.randomUUID(),
     projectID: dummyProject.id,
@@ -142,7 +159,9 @@ function ProjectPage() {
     updatedAt: new Date().toISOString(),
   };
 
-  setTasks((currentTasks) => [newTask, ...currentTasks]);
+  dispatch(addTask(newTask));
+
+  await saveTasks([newTask, ...tasks]);
 }
 
   return (

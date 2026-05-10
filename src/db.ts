@@ -1,9 +1,11 @@
 import { openDB } from "idb";
 import type { UserState } from "./reducers/userReducer";
+import type { Task } from "./types";
 
 const DB_NAME = "kanri";
 const STORE_NAME = "app";
 const USER_KEY = "currentUser";
+const TASKS_KEY = "tasks";
 
 const dbPromise = openDB(DB_NAME, 1, {
   upgrade(db) {
@@ -28,3 +30,17 @@ export async function clearUser(): Promise<void> {
   await db.delete(STORE_NAME, USER_KEY);
 }
 
+export async function saveTasks(tasks: Task[]): Promise<void> {
+  const db = await dbPromise;
+  await db.put(STORE_NAME, tasks, TASKS_KEY);
+}
+
+export async function loadTasks(): Promise<Task[]> {
+  const db = await dbPromise;
+  return (await db.get(STORE_NAME, TASKS_KEY)) ?? [];
+}
+
+export async function clearTasks(): Promise<void> {
+  const db = await dbPromise;
+  await db.delete(STORE_NAME, TASKS_KEY);
+}
