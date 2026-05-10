@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Plus, Star } from "lucide-react";
+import type { Task } from "../../types";
+import { TaskPriorities } from "../../types";
 import "./TaskComposer.css";
 
 type TaskComposerProps = {
@@ -9,13 +11,40 @@ type TaskComposerProps = {
     description: string,
     priority: 1 | 2 | 3
   ) => void;
+  initialTask?: Task;
+  submitLabel?: string;
+  onCancel?: () => void;
 };
 
-function TaskComposer({ onAdd }: TaskComposerProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [priority, setPriority] = useState<1 | 2 | 3>(2); 
+function TaskComposer({
+  onAdd,
+  initialTask,
+  submitLabel = "Add",
+  onCancel,
+}: TaskComposerProps) {
+  const priorityMap = {
+    [TaskPriorities.Low]: 1,
+    [TaskPriorities.Medium]: 2,
+    [TaskPriorities.High]: 3,
+  } as const;
+
+  const [isExpanded, setIsExpanded] = useState(
+    initialTask ? true : false
+  );
+
+  const [title, setTitle] = useState(
+    initialTask?.name ?? ""
+  );
+
+  const [description, setDescription] = useState(
+    initialTask?.description ?? ""
+  );
+
+  const [priority, setPriority] = useState<1 | 2 | 3>(
+    initialTask
+      ? priorityMap[initialTask.priority]
+      : 2
+  );
 
   const titleRef = useRef<HTMLInputElement>(null);
 
@@ -30,6 +59,7 @@ function TaskComposer({ onAdd }: TaskComposerProps) {
     setDescription("");
     setPriority(2);
     setIsExpanded(false);
+    onCancel?.();
   }
 
   function handleCancel() {
@@ -44,7 +74,12 @@ function TaskComposer({ onAdd }: TaskComposerProps) {
       return;
     }
 
-    onAdd(trimmedTitle, description.trim(), priority);
+    onAdd(
+      trimmedTitle,
+      description.trim(),
+      priority
+    );
+
     resetComposer();
   }
 
@@ -69,9 +104,21 @@ function TaskComposer({ onAdd }: TaskComposerProps) {
           <motion.div
             key="editor"
             className="task-composer__editor"
-            initial={{ opacity: 0, height: 0, y: -6 }}
-            animate={{ opacity: 1, height: "auto", y: 0 }}
-            exit={{ opacity: 0, height: 0, y: -6 }}
+            initial={{
+              opacity: 0,
+              height: 0,
+              y: -6,
+            }}
+            animate={{
+              opacity: 1,
+              height: "auto",
+              y: 0,
+            }}
+            exit={{
+              opacity: 0,
+              height: 0,
+              y: -6,
+            }}
             transition={{
               duration: 0.35,
               ease: [0.16, 1, 0.3, 1],
@@ -81,7 +128,9 @@ function TaskComposer({ onAdd }: TaskComposerProps) {
               ref={titleRef}
               type="text"
               value={title}
-              onChange={(event) => setTitle(event.target.value)}
+              onChange={(event) =>
+                setTitle(event.target.value)
+              }
               placeholder="Task title"
               className="task-composer__input"
               onKeyDown={(event) => {
@@ -91,7 +140,8 @@ function TaskComposer({ onAdd }: TaskComposerProps) {
 
                 if (
                   event.key === "Enter" &&
-                  (event.metaKey || event.ctrlKey)
+                  (event.metaKey ||
+                    event.ctrlKey)
                 ) {
                   handleAdd();
                 }
@@ -101,7 +151,9 @@ function TaskComposer({ onAdd }: TaskComposerProps) {
             <textarea
               value={description}
               onChange={(event) =>
-                setDescription(event.target.value)
+                setDescription(
+                  event.target.value
+                )
               }
               placeholder="Description (optional)"
               rows={4}
@@ -113,12 +165,14 @@ function TaskComposer({ onAdd }: TaskComposerProps) {
 
                 if (
                   event.key === "Enter" &&
-                  (event.metaKey || event.ctrlKey)
+                  (event.metaKey ||
+                    event.ctrlKey)
                 ) {
                   handleAdd();
                 }
               }}
             />
+
             <div className="task-composer__priority">
               <p className="task-composer__priority-label">
                 Priority
@@ -126,7 +180,8 @@ function TaskComposer({ onAdd }: TaskComposerProps) {
 
               <div className="task-composer__stars">
                 {[1, 2, 3].map((value) => {
-                  const filled = value <= priority;
+                  const filled =
+                    value <= priority;
 
                   return (
                     <motion.button
@@ -138,10 +193,16 @@ function TaskComposer({ onAdd }: TaskComposerProps) {
                           : ""
                       }`}
                       onClick={() =>
-                        setPriority(value as 1 | 2 | 3)
+                        setPriority(
+                          value as 1 | 2 | 3
+                        )
                       }
-                      whileHover={{ scale: 1.12 }}
-                      whileTap={{ scale: 0.92 }}
+                      whileHover={{
+                        scale: 1.12,
+                      }}
+                      whileTap={{
+                        scale: 0.92,
+                      }}
                       aria-label={`Set priority to ${value} star${
                         value > 1 ? "s" : ""
                       }`}
@@ -174,7 +235,7 @@ function TaskComposer({ onAdd }: TaskComposerProps) {
                 className="task-composer__add"
                 onClick={handleAdd}
               >
-                Add
+                {submitLabel}
               </button>
             </div>
           </motion.div>

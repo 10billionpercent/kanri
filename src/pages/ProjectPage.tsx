@@ -132,20 +132,36 @@ function handleMoveRight(taskToMove: Task) {
     dispatch(deleteTask(taskToDelete.id));
   }
 
-  function handleEdit(taskToEdit: Task) {
-    const newName = window.prompt("Edit task name", taskToEdit.name);
+async function handleEdit(
+  taskToEdit: Task,
+  title: string,
+  description: string,
+  priority: 1 | 2 | 3
+) {
+  const priorityMap = {
+    1: TaskPriorities.Low,
+    2: TaskPriorities.Medium,
+    3: TaskPriorities.High,
+  } as const;
 
-    if (!newName || !newName.trim()) {
-      return;
-    }
+  const updatedTask: Task = {
+    ...taskToEdit,
+    name: title,
+    description: description || undefined,
+    priority: priorityMap[priority],
+    updatedAt: new Date().toISOString(),
+  };
 
-    const updatedTask = {
-      ...taskToEdit,
-      name: newName.trim(),
-      updatedAt: new Date().toISOString(),
-      }
-      dispatch(updateTask(updatedTask));
-  }
+  dispatch(updateTask(updatedTask));
+
+  const updatedTasks = tasks.map((task) =>
+    task.id === updatedTask.id
+      ? updatedTask
+      : task
+  );
+
+  await saveTasks(updatedTasks);
+}
 
   async function handleAddTask(title: string, description: string, priority: 1 | 2 | 3) {
     const priorityMap = {

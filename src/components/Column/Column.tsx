@@ -11,7 +11,12 @@ type ColumnProps = {
   title: "todo" | "doing" | "done";
   color: string;
   tasks: Task[];
-  onEdit?: (task: Task) => void;
+  onEdit?: (
+    task: Task,
+    title: string,
+    description: string,
+    priority: 1 | 2 | 3,
+  ) => void;
   onDelete?: (task: Task) => void;
   onMoveLeft?: (task: Task) => void;
   onMoveRight?: (task: Task) => void;
@@ -29,6 +34,8 @@ function Column({
   onAddTask,
 }: ColumnProps) {
   const [isExpanded, setIsExpanded] = useState(true);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+
   const formattedTitle = title.toUpperCase();
   const isTodoColumn = title === "todo";
 
@@ -53,8 +60,13 @@ function Column({
           aria-expanded={isExpanded}
         >
           <motion.span
-            animate={{ rotate: isExpanded ? 180 : 0 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            animate={{
+              rotate: isExpanded ? 180 : 0,
+            }}
+            transition={{
+              duration: 0.4,
+              ease: [0.22, 1, 0.36, 1],
+            }}
           >
             <ChevronDown size={18} />
           </motion.span>
@@ -68,16 +80,22 @@ function Column({
             initial={{ height: 0 }}
             animate={{ height: "auto" }}
             exit={{ height: 0 }}
-            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            transition={{
+              duration: 0.4,
+              ease: [0.16, 1, 0.3, 1],
+            }}
           >
             <motion.div
               className="kanri-column__body"
               initial={{ opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
-              transition={{ duration: 0.4, ease: "easeOut" }}
+              transition={{
+                duration: 0.4,
+                ease: "easeOut",
+              }}
             >
-              {isTodoColumn && onAddTask && (
+              {isTodoColumn && onAddTask && !editingTask && (
                 <TaskComposer onAdd={onAddTask} />
               )}
 
@@ -89,34 +107,53 @@ function Column({
                     <motion.div
                       key={task.id}
                       layout
-                      initial={{
-                        opacity: 0,
-                        y: -6,
-                        height: 0,
-                      }}
-                      animate={{
-                        opacity: 1,
-                        y: 0,
-                        height: "auto",
-                      }}
-                      exit={{
-                        opacity: 0,
-                        y: -6,
-                        height: 0,
-                      }}
                       transition={{
-                        duration: 0.6,
-                        ease: [0.16, 1, 0.3, 1],
+                        layout: {
+                          duration: 0.6,
+                          ease: [0.16, 1, 0.3, 1],
+                        },
                       }}
                       style={{ overflow: "hidden" }}
                     >
-                      <TaskCard
-                        task={task}
-                        onEdit={onEdit}
-                        onDelete={onDelete}
-                        onMoveLeft={onMoveLeft}
-                        onMoveRight={onMoveRight}
-                      />
+                      <AnimatePresence initial={false} mode="wait">
+                        {editingTask?.id === task.id ? (
+                          <motion.div
+                            key={`editor-${task.id}`}
+                            layout="position"
+                            initial={false}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 1 }}
+                            transition={{ duration: 0 }}
+                          >
+                            <TaskComposer
+                              initialTask={task}
+                              submitLabel="Save"
+                              onCancel={() => setEditingTask(null)}
+                              onAdd={(title, description, priority) => {
+                                onEdit?.(task, title, description, priority);
+                                setEditingTask(null);
+                              }}
+                            />
+                          </motion.div>
+                        ) : (
+                          <motion.div
+                            key={`card-${task.id}`}
+                            layout="position"
+                            initial={false}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 1 }}
+                            transition={{ duration: 0 }}
+                          >
+                            <TaskCard
+                              task={task}
+                              onEdit={() => setEditingTask(task)}
+                              onDelete={onDelete}
+                              onMoveLeft={onMoveLeft}
+                              onMoveRight={onMoveRight}
+                            />
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </motion.div>
                   ))}
                 </AnimatePresence>

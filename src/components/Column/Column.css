@@ -4,7 +4,7 @@
   background:
     linear-gradient(
       180deg,
-      color-mix(in srgb, var(--column-color) 50%, transparent) 0%,
+      color-mix(in srgb, var(--column-color) 30%, transparent) 0%,
       color-mix(in srgb, var(--column-color) 20%, transparent) 42%,
       transparent 100%
     ),
