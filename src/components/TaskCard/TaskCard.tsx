@@ -1,7 +1,8 @@
 import { Edit3, Trash2, Triangle } from "lucide-react";
 import type { Task as TaskData } from "../../types";
+import { Star } from "lucide-react";
 import { TaskStatuses } from "../../types";
-import "./Task.css";
+import "./TaskCard.css";
 
 type TaskProps = {
   task: TaskData;
@@ -25,6 +26,8 @@ function Task({
   const canMoveRight =
     task.status === TaskStatuses.Todo ||
     task.status === TaskStatuses.Doing;
+
+  console.log(task)
 
   return (
     <article className="kanri-task">

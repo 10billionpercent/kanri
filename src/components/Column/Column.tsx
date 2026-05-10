@@ -3,7 +3,7 @@ import type { CSSProperties } from "react";
 import { ChevronDown } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { Task } from "../../types";
-import TaskCard from "../Task/Task";
+import TaskCard from "../TaskCard/TaskCard";
 import TaskComposer from "../TaskComposer/TaskComposer";
 import "./Column.css";
 
