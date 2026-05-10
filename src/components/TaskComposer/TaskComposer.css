@@ -1,0 +1,240 @@
+.task-composer {
+  margin-bottom: 16px;
+}
+
+.task-composer__trigger {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 14px;
+  border-radius: 8px;
+  background: var(--background);
+  color: var(--purple-light);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: var(--body-font);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    transform 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.task-composer__trigger span {
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.task-composer__trigger:hover {
+  border-color: var(--purple-light);
+  background: color-mix(
+    in srgb,
+    var(--purple-light) 10%,
+    var(--background)
+  );
+}
+
+.task-composer__trigger:active {
+  transform: scale(0.99);
+}
+
+.task-composer__editor {
+  overflow: hidden;
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: color-mix(
+    in srgb,
+    var(--background) 92%,
+    var(--purple-light) 8%
+  );
+  backdrop-filter: blur(12px);
+}
+
+.task-composer__input,
+.task-composer__textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--background);
+  color: var(--body);
+  font: inherit;
+  font-family: var(--body-font);
+  box-sizing: border-box;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.task-composer__input {
+  min-height: 44px;
+  padding: 0 14px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.task-composer__textarea {
+  padding: 14px 14px;
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.task-composer__input:focus,
+.task-composer__textarea:focus {
+  outline: none;
+  border-color: var(--purple-light);
+  box-shadow: 0 0 0 3px
+    color-mix(
+      in srgb,
+      var(--purple-light) 18%,
+      transparent
+    );
+}
+
+.task-composer__input::placeholder,
+.task-composer__textarea::placeholder {
+  color: color-mix(
+    in srgb,
+    var(--body) 55%,
+    transparent
+  );
+}
+
+.task-composer__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.task-composer__cancel,
+.task-composer__add {
+  min-height: 38px;
+  padding: 0 16px;
+  border-radius: 8px;
+  font: inherit;
+  font-family: var(--body-font);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    opacity 0.2s ease,
+    transform 0.15s ease;
+}
+
+.task-composer__cancel {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: color-mix(
+    in srgb,
+    var(--body) 75%,
+    transparent
+  );
+}
+
+.task-composer__cancel:hover {
+  opacity: 0.85;
+}
+
+.task-composer__add {
+  border: none;
+  background: var(--purple-light);
+  color: var(--background);
+}
+
+.task-composer__add:hover {
+  opacity: 0.92;
+}
+
+.task-composer__cancel:active,
+.task-composer__add:active {
+  transform: scale(0.97);
+}
+
+.task-composer__priority {
+  padding: 0 14px;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  justify-content: start;
+  align-items: center;
+}
+
+.task-composer__priority-label {
+  margin: 0;
+  color: color-mix(
+    in srgb,
+    var(--body) 75%,
+    transparent
+  );
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.task-composer__stars {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.task-composer__star {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border: none;
+  background: transparent;
+  color: color-mix(
+    in srgb,
+    var(--purple-light) 35%,
+    transparent
+  );
+  cursor: pointer;
+  border-radius: 6px;
+  transition:
+    color 0.2s ease,
+    filter 0.2s ease;
+}
+
+.task-composer__star:hover {
+  color: var(--purple-light);
+  filter: drop-shadow(
+    0 0 6px
+      color-mix(
+        in srgb,
+        var(--purple-light) 35%,
+        transparent
+      )
+  );
+}
+
+.task-composer__star--filled {
+  color: var(--purple-light);
+  filter: drop-shadow(
+    0 0 8px
+      color-mix(
+        in srgb,
+        var(--purple-light) 30%,
+        transparent
+      )
+  );
+}
+
+@media (max-width: 640px) {
+  .task-composer__actions {
+    flex-direction: column-reverse;
+  }
+
+  .task-composer__cancel,
+  .task-composer__add {
+    width: 100%;
+  }
+}

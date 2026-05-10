@@ -130,6 +130,21 @@ function ProjectPage() {
     );
   }
 
+  function handleAddTask(title: string, description: string) {
+  const newTask: Task = {
+    id: crypto.randomUUID(),
+    projectID: dummyProject.id,
+    name: title,
+    description: description || undefined,
+    priority: TaskPriorities.Medium,
+    status: TaskStatuses.Todo,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  setTasks((currentTasks) => [newTask, ...currentTasks]);
+}
+
   return (
     <main className="min-h-svh p-4 sm:p-6">
       <div className="mx-auto w-full max-w-6xl">
@@ -148,6 +163,7 @@ function ProjectPage() {
             onDelete={handleDelete}
             onMoveLeft={handleMoveLeft}
             onMoveRight={handleMoveRight}
+            onAddTask={handleAddTask}
           />
 
           <Column

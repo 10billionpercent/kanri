@@ -4,6 +4,7 @@ import { ChevronDown } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { Task } from "../../types";
 import TaskCard from "../Task/Task";
+import TaskComposer from "../TaskComposer/TaskComposer";
 import "./Column.css";
 
 type ColumnProps = {
@@ -14,6 +15,7 @@ type ColumnProps = {
   onDelete?: (task: Task) => void;
   onMoveLeft?: (task: Task) => void;
   onMoveRight?: (task: Task) => void;
+  onAddTask?: (title: string, description: string) => void;
 };
 
 function Column({
@@ -24,9 +26,11 @@ function Column({
   onDelete,
   onMoveLeft,
   onMoveRight,
+  onAddTask,
 }: ColumnProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const formattedTitle = title.toUpperCase();
+  const isTodoColumn = title === "todo";
 
   return (
     <section
@@ -73,45 +77,50 @@ function Column({
               exit={{ opacity: 0, y: -4 }}
               transition={{ duration: 0.4, ease: "easeOut" }}
             >
+              {/* Show TaskComposer only in TODO column */}
+              {isTodoColumn && onAddTask && (
+                <TaskComposer onAdd={onAddTask} />
+              )}
+
               {tasks.length === 0 ? (
                 <p className="kanri-column__empty">No tasks here yet.</p>
               ) : (
                 <AnimatePresence mode="popLayout">
-  {tasks.map((task) => (
-    <motion.div
-      key={task.id}
-      layout
-      initial={{
-        opacity: 0,
-        y: -6,
-        height: 0,
-      }}
-      animate={{
-        opacity: 1,
-        y: 0,
-        height: "auto",
-      }}
-      exit={{
-        opacity: 0,
-        y: -6,
-        height: 0,
-      }}
-      transition={{
-        duration: 0.6,
-        ease: [0.16, 1, 0.3, 1],
-      }}
-      style={{ overflow: "hidden" }}
-    >
-      <TaskCard
-        task={task}
-        onEdit={onEdit}
-        onDelete={onDelete}
-        onMoveLeft={onMoveLeft}
-        onMoveRight={onMoveRight}
-      />
-    </motion.div>
-  ))}
-</AnimatePresence>
+                  {tasks.map((task) => (
+                    <motion.div
+                      key={task.id}
+                      layout
+                      initial={{
+                        opacity: 0,
+                        y: -6,
+                        height: 0,
+                      }}
+                      animate={{
+                        opacity: 1,
+                        y: 0,
+                        height: "auto",
+                      }}
+                      exit={{
+                        opacity: 0,
+                        y: -6,
+                        height: 0,
+                      }}
+                      transition={{
+                        duration: 0.6,
+                        ease: [0.16, 1, 0.3, 1],
+                      }}
+                      style={{ overflow: "hidden" }}
+                    >
+                      <TaskCard
+                        task={task}
+                        onEdit={onEdit}
+                        onDelete={onDelete}
+                        onMoveLeft={onMoveLeft}
+                        onMoveRight={onMoveRight}
+                      />
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
               )}
             </motion.div>
           </motion.div>
