@@ -31,7 +31,7 @@
   position: relative;
   z-index: 1;
   border-radius: 8px;
-  box-shadow: 0 24px 80px var(--background);
+  filter: drop-shadow(10px 10px 10px var(--background));
   background-color: var(--background);
   box-sizing: border-box;
   text-align: left;
