@@ -147,13 +147,18 @@ function handleMoveRight(taskToMove: Task) {
       dispatch(updateTask(updatedTask));
   }
 
-  async function handleAddTask(title: string, description: string) {
+  async function handleAddTask(title: string, description: string, priority: 1 | 2 | 3) {
+    const priorityMap = {
+    1: TaskPriorities.Low,
+    2: TaskPriorities.Medium,
+    3: TaskPriorities.High,
+  } as const;
   const newTask: Task = {
     id: crypto.randomUUID(),
     projectID: dummyProject.id,
     name: title,
     description: description || undefined,
-    priority: TaskPriorities.Medium,
+    priority: priorityMap[priority],
     status: TaskStatuses.Todo,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),

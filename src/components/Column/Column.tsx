@@ -15,7 +15,7 @@ type ColumnProps = {
   onDelete?: (task: Task) => void;
   onMoveLeft?: (task: Task) => void;
   onMoveRight?: (task: Task) => void;
-  onAddTask?: (title: string, description: string) => void;
+  onAddTask?: (title: string, description: string, priority: 1 | 2 | 3) => void;
 };
 
 function Column({
