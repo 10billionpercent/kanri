@@ -74,14 +74,18 @@
 
 .task-composer__input {
   min-height: 44px;
-  padding: 0 14px;
+  padding: 10px 14px;
   font-size: 15px;
   font-weight: 700;
+  line-height: 1.5;
+  resize: none;
+  overflow: hidden;
 }
 
 .task-composer__textarea {
-  padding: 14px 14px;
-  resize: vertical;
+  padding: 14px;
+  resize: none;
+  overflow: hidden;
   min-height: 100px;
   line-height: 1.5;
   font-size: 14px;

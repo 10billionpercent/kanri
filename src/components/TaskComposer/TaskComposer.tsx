@@ -46,7 +46,25 @@ function TaskComposer({
       : 2
   );
 
-  const titleRef = useRef<HTMLInputElement>(null);
+  const titleRef = useRef<HTMLTextAreaElement>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+
+function autoResize(
+  ref: React.RefObject<HTMLTextAreaElement | null>
+) {
+  const textarea = ref.current;
+
+  if (!textarea) {
+    return;
+  }
+
+  textarea.style.height = "0px";
+  textarea.style.height = `${textarea.scrollHeight}px`;
+}
+useEffect(() => {
+  autoResize(titleRef);
+  autoResize(descriptionRef);
+}, [title, description, isExpanded]);
 
   useEffect(() => {
     if (isExpanded) {
@@ -124,55 +142,50 @@ function TaskComposer({
               ease: [0.16, 1, 0.3, 1],
             }}
           >
-            <input
-              ref={titleRef}
-              type="text"
-              value={title}
-              onChange={(event) =>
-                setTitle(event.target.value)
-              }
-              placeholder="Task title"
-              className="task-composer__input"
-              onKeyDown={(event) => {
-                if (event.key === "Escape") {
-                  handleCancel();
-                }
-
-                if (
-                  event.key === "Enter" &&
-                  (event.metaKey ||
-                    event.ctrlKey)
-                ) {
-                  handleAdd();
-                }
-              }}
-            />
-
             <textarea
-              value={description}
-              onChange={(event) =>
-                setDescription(
-                  event.target.value
-                )
-              }
-              placeholder="Description (optional)"
-              rows={4}
-              className="task-composer__textarea"
-              onKeyDown={(event) => {
-                if (event.key === "Escape") {
-                  handleCancel();
-                }
+  ref={titleRef}
+  value={title}
+  onChange={(event) =>
+    setTitle(event.target.value)
+  }
+  placeholder="Task title"
+  rows={1}
+  className="task-composer__input"
+  onKeyDown={(event) => {
+    if (event.key === "Escape") {
+      handleCancel();
+    }
 
-                if (
-                  event.key === "Enter" &&
-                  (event.metaKey ||
-                    event.ctrlKey)
-                ) {
-                  handleAdd();
-                }
-              }}
-            />
+    if (
+      event.key === "Enter" &&
+      (event.metaKey || event.ctrlKey)
+    ) {
+      handleAdd();
+    }
+  }}
+/>
+            <textarea
+  ref={descriptionRef}
+  value={description}
+  onChange={(event) =>
+    setDescription(event.target.value)
+  }
+  placeholder="Description (optional)"
+  rows={4}
+  className="task-composer__textarea"
+  onKeyDown={(event) => {
+    if (event.key === "Escape") {
+      handleCancel();
+    }
 
+    if (
+      event.key === "Enter" &&
+      (event.metaKey || event.ctrlKey)
+    ) {
+      handleAdd();
+    }
+  }}
+/>
             <div className="task-composer__priority">
               <p className="task-composer__priority-label">
                 Priority
