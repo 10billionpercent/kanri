@@ -8,7 +8,7 @@
   padding: 0 14px;
   border-radius: 8px;
   background: var(--background);
-  color: var(--purple-light);
+  color: var(--column-color);
   font: inherit;
   font-size: 15px;
   font-weight: 700;
@@ -30,10 +30,10 @@
 }
 
 .task-composer__trigger:hover {
-  border-color: var(--purple-light);
+  border-color: var(--column-color);
   background: color-mix(
     in srgb,
-    var(--purple-light) 10%,
+    var(--column-color) 10%,
     var(--background)
   );
 }
@@ -52,9 +52,19 @@
   background: color-mix(
     in srgb,
     var(--background) 92%,
-    var(--purple-light) 8%
+    var(--column-color) 8%
   );
   backdrop-filter: blur(12px);
+}
+
+.task-composer__mode {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--column-color);
+  text-align: start;
 }
 
 .task-composer__input,
@@ -94,11 +104,11 @@
 .task-composer__input:focus,
 .task-composer__textarea:focus {
   outline: none;
-  border-color: var(--purple-light);
+  border-color: var(--column-color);
   box-shadow: 0 0 0 3px
     color-mix(
       in srgb,
-      var(--purple-light) 18%,
+      var(--column-color) 18%,
       transparent
     );
 }
@@ -149,7 +159,7 @@
 
 .task-composer__add {
   border: none;
-  background: var(--purple-light);
+  background: var(--column-color);
   color: var(--background);
 }
 
@@ -198,7 +208,7 @@
   background: transparent;
   color: color-mix(
     in srgb,
-    var(--purple-light) 35%,
+    var(--column-color) 35%,
     transparent
   );
   cursor: pointer;
@@ -209,24 +219,24 @@
 }
 
 .task-composer__star:hover {
-  color: var(--purple-light);
+  color: var(--column-color);
   filter: drop-shadow(
     0 0 6px
       color-mix(
         in srgb,
-        var(--purple-light) 35%,
+        var(--column-color) 35%,
         transparent
       )
   );
 }
 
 .task-composer__star--filled {
-  color: var(--purple-light);
+  color: var(--column-color);
   filter: drop-shadow(
     0 0 8px
       color-mix(
         in srgb,
-        var(--purple-light) 30%,
+        var(--column-color) 30%,
         transparent
       )
   );

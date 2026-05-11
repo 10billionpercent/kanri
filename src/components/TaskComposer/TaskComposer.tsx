@@ -142,6 +142,9 @@ useEffect(() => {
               ease: [0.16, 1, 0.3, 1],
             }}
           >
+            <p className="task-composer__mode">
+  {initialTask ? "Editing task" : "Adding new task"}
+</p>
             <textarea
   ref={titleRef}
   value={title}
@@ -224,7 +227,7 @@ useEffect(() => {
                         size={20}
                         fill={
                           filled
-                            ? "var(--purple-light)"
+                            ? "currentColor"
                             : "transparent"
                         }
                       />
