@@ -1,7 +1,11 @@
 import { useState } from "react";
 import type { CSSProperties } from "react";
 import { ChevronDown } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
+import {
+  AnimatePresence,
+  LayoutGroup,
+  motion,
+} from "framer-motion";
 import type { Task } from "../../types";
 import TaskCard from "../TaskCard/TaskCard";
 import TaskComposer from "../TaskComposer/TaskComposer";
@@ -20,7 +24,11 @@ type ColumnProps = {
   onDelete?: (task: Task) => void;
   onMoveLeft?: (task: Task) => void;
   onMoveRight?: (task: Task) => void;
-  onAddTask?: (title: string, description: string, priority: 1 | 2 | 3) => void;
+  onAddTask?: (
+    title: string,
+    description: string,
+    priority: 1 | 2 | 3,
+  ) => void;
 };
 
 function Column({
@@ -34,24 +42,31 @@ function Column({
   onAddTask,
 }: ColumnProps) {
   const [isExpanded, setIsExpanded] = useState(true);
-  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [editingTask, setEditingTask] =
+    useState<Task | null>(null);
 
   const formattedTitle = title.toUpperCase();
   const isTodoColumn = title === "todo";
 
   return (
     <section
-      className={`kanri-column ${isExpanded ? "kanri-column--expanded" : ""}`}
+      className={`kanri-column ${
+        isExpanded ? "kanri-column--expanded" : ""
+      }`}
       style={{ "--column-color": color } as CSSProperties}
       aria-label={`${formattedTitle} tasks`}
     >
       <header className="kanri-column__header">
-        <h2 className="kanri-column__title">{formattedTitle}</h2>
+        <h2 className="kanri-column__title">
+          {formattedTitle}
+        </h2>
 
         <button
           type="button"
           className="kanri-column__toggle"
-          onClick={() => setIsExpanded((current) => !current)}
+          onClick={() =>
+            setIsExpanded((current) => !current)
+          }
           aria-label={
             isExpanded
               ? `Collapse ${formattedTitle}`
@@ -95,68 +110,105 @@ function Column({
                 ease: "easeOut",
               }}
             >
-              {isTodoColumn && onAddTask && !editingTask && (
-                <TaskComposer onAdd={onAddTask} />
-              )}
+              {isTodoColumn &&
+                onAddTask &&
+                !editingTask && (
+                  <TaskComposer onAdd={onAddTask} />
+                )}
 
               {tasks.length === 0 ? (
-                <p className="kanri-column__empty">No tasks here yet.</p>
+                <p className="kanri-column__empty">
+                  No tasks here yet.
+                </p>
               ) : (
-                <AnimatePresence mode="popLayout">
-                  {tasks.map((task) => (
-                    <motion.div
-                      key={task.id}
-                      layout
-                      transition={{
-                        layout: {
-                          duration: 0.6,
-                          ease: [0.16, 1, 0.3, 1],
-                        },
-                      }}
-                      style={{ overflow: "hidden" }}
-                    >
-                      <AnimatePresence initial={false} mode="wait">
-                        {editingTask?.id === task.id ? (
-                          <motion.div
-                            key={`editor-${task.id}`}
-                            layout="position"
-                            initial={false}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 1 }}
-                            transition={{ duration: 0 }}
-                          >
-                            <TaskComposer
-                              initialTask={task}
-                              submitLabel="Save"
-                              onCancel={() => setEditingTask(null)}
-                              onAdd={(title, description, priority) => {
-                                onEdit?.(task, title, description, priority);
-                                setEditingTask(null);
+                <LayoutGroup>
+                  <AnimatePresence mode="popLayout">
+                    {tasks.map((task) => (
+                      <motion.div
+                        key={task.id}
+                        layout
+                        layoutId={task.id}
+                        transition={{
+                          layout: {
+                            duration: 0.6,
+                            ease: [
+                              0.16,
+                              1,
+                              0.3,
+                              1,
+                            ],
+                          },
+                        }}
+                        style={{ overflow: "hidden" }}
+                      >
+                        {/* Keep edit-mode swap instant */}
+                        <AnimatePresence
+                          initial={false}
+                          mode="wait"
+                        >
+                          {editingTask?.id === task.id ? (
+                            <motion.div
+                              key={`editor-${task.id}`}
+                              layout="position"
+                              initial={false}
+                              animate={{ opacity: 1 }}
+                              exit={{ opacity: 1 }}
+                              transition={{
+                                duration: 0,
                               }}
-                            />
-                          </motion.div>
-                        ) : (
-                          <motion.div
-                            key={`card-${task.id}`}
-                            layout="position"
-                            initial={false}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 1 }}
-                            transition={{ duration: 0 }}
-                          >
-                            <TaskCard
-                              task={task}
-                              onEdit={() => setEditingTask(task)}
-                              onDelete={onDelete}
-                              onMoveLeft={onMoveLeft}
-                              onMoveRight={onMoveRight}
-                            />
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
+                            >
+                              <TaskComposer
+                                initialTask={task}
+                                submitLabel="Save"
+                                onCancel={() =>
+                                  setEditingTask(null)
+                                }
+                                onAdd={(
+                                  title,
+                                  description,
+                                  priority,
+                                ) => {
+                                  onEdit?.(
+                                    task,
+                                    title,
+                                    description,
+                                    priority,
+                                  );
+                                  setEditingTask(null);
+                                }}
+                              />
+                            </motion.div>
+                          ) : (
+                            <motion.div
+                              key={`card-${task.id}`}
+                              layout="position"
+                              initial={false}
+                              animate={{ opacity: 1 }}
+                              exit={{ opacity: 1 }}
+                              transition={{
+                                duration: 0,
+                              }}
+                            >
+                              <TaskCard
+                                task={task}
+                                onEdit={() =>
+                                  setEditingTask(task)
+                                }
+                                onDelete={onDelete}
+                                onMoveLeft={
+                                  onMoveLeft
+                                }
+                                onMoveRight={
+                                  onMoveRight
+                                }
+                              />
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </LayoutGroup>
               )}
             </motion.div>
           </motion.div>
