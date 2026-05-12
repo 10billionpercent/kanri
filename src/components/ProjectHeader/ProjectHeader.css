@@ -95,6 +95,7 @@
   justify-self: start;
   margin-top: 12px;
   padding: 14px;
+  border: none;
   border-radius: 8px;
   background: transparent;
   color: var(--body);
@@ -102,10 +103,23 @@
   font-weight: 700;
   cursor: pointer;
   transition:
-    background-color 0.5s ease,
+    background-color 0.35s ease,
+    color 0.35s ease,
+    box-shadow 0.35s ease,
+    transform 0.2s ease;
 }
 
-.project-header__project.selected {
+.project-header__project:hover {
+  transform: translateY(-1px);
+}
+
+.project-header__project--selected {
   background: var(--blue-light);
   color: var(--background);
+  box-shadow: 0 6px 20px
+    color-mix(
+      in srgb,
+      var(--blue-light) 35%,
+      transparent
+    );
 }
