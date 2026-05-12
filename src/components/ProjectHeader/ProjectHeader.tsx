@@ -6,13 +6,24 @@ import { clearUser } from "../../reducers/userReducer";
 import "./ProjectHeader.css";
 import type { Project, Task } from "../../types";
 import { TaskStatuses } from "../../types";
-import { clearUser as clearStoredUser } from "../../db";
+import { clearUser as clearStoredUser, saveProjects } from "../../db";
+import Composer  from "../Composer/Composer";
+import { setProjects, addProject, updateProject, deleteProject, } from "../../reducers/projectReducer";
 
 type ProjectHeaderProps = {
   project: Project;
   tasks: Task[];
   phrase: string;
 };
+
+ document.addEventListener("click", (e) => {
+      const selectedProject = e.target.closest(".project-header__project");
+      if (!selectedProject) return;
+
+      e.preventDefault();
+      selectedProject.classList.toggle("selected");
+    });
+
 
 function ProjectHeader({
   project,
@@ -23,6 +34,8 @@ function ProjectHeader({
   const navigate = useNavigate();
   const user = useSelector((state: RootState) => state.user);
   const userName = user?.name || user?.username || "there";
+  const projects = useSelector((state: RootState) => state.projects);
+
 
   const todoCount = tasks.filter(
     (task) => task.status === TaskStatuses.Todo
@@ -65,6 +78,20 @@ function ProjectHeader({
     return `${project.name} • 0 total`;
   }
 
+    async function handleAddProject(title: string, description: string) {
+    const newProject: Project = {
+      id: crypto.randomUUID(),
+      name: title,
+      description: description || undefined,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+  
+    dispatch(addProject(newProject));
+  
+    await saveProjects([newProject, ...projects]);
+  }
+
   return (
     <header className="project-header">
       <h1 className="project-header__greeting">
@@ -101,6 +128,15 @@ function ProjectHeader({
 >
   Log out
 </button>
+  <Composer  mode='project' onAdd={handleAddProject} color="var(--blue-light)"/>
+  {projects.map(p => (
+  <button
+  type="button"
+  className="project-header__project"
+>
+  {p.name}
+</button>
+  ))}
     </header>
   );
 }

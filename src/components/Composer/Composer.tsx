@@ -1,27 +1,49 @@
 import { useEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Plus, Star } from "lucide-react";
 import type { Task } from "../../types";
 import { TaskPriorities } from "../../types";
-import "./TaskComposer.css";
+import "./Composer.css";
 
-type TaskComposerProps = {
+type BaseComposerProps = {
+  initialTask?: Task;
+  submitLabel?: string;
+  mode: "task" | "project";
+  onCancel?: () => void;
+  color?: string;
+};
+
+type TaskComposerProps = BaseComposerProps & {
+  showPriority: true;
   onAdd: (
     title: string,
     description: string,
     priority: 1 | 2 | 3
   ) => void;
-  initialTask?: Task;
-  submitLabel?: string;
-  onCancel?: () => void;
 };
 
-function TaskComposer({
+type ProjectComposerProps = BaseComposerProps & {
+  showPriority?: false;
+  onAdd: (
+    title: string,
+    description: string
+  ) => void;
+};
+
+type ComposerProps =
+  | TaskComposerProps
+  | ProjectComposerProps;
+
+function Composer({
   onAdd,
   initialTask,
   submitLabel = "Add",
+  mode,
   onCancel,
-}: TaskComposerProps) {
+  showPriority,
+  color
+}: ComposerProps) {
   const priorityMap = {
     [TaskPriorities.Low]: 1,
     [TaskPriorities.Medium]: 2,
@@ -102,7 +124,14 @@ useEffect(() => {
   }
 
   return (
-    <div className="task-composer">
+    <div
+  className="task-composer"
+  style={
+    color
+      ? ({ "--column-color": color } as CSSProperties)
+      : undefined
+  }
+>
       <AnimatePresence mode="wait">
         {!isExpanded ? (
           <motion.button
@@ -116,7 +145,7 @@ useEffect(() => {
             transition={{ duration: 0.2 }}
           >
             <Plus size={16} />
-            <span>Add task</span>
+            <span>Add {mode} </span>
           </motion.button>
         ) : (
           <motion.div
@@ -143,7 +172,7 @@ useEffect(() => {
             }}
           >
             <p className="task-composer__mode">
-  {initialTask ? "Editing task" : "Adding new task"}
+  {initialTask ? `Editing ${mode}` : `Adding new ${mode}`}
 </p>
             <textarea
   ref={titleRef}
@@ -151,7 +180,7 @@ useEffect(() => {
   onChange={(event) =>
     setTitle(event.target.value)
   }
-  placeholder="Task title"
+  placeholder={`${mode[0].toUpperCase() + mode.slice(1)} title`}
   rows={1}
   className="task-composer__input"
   onKeyDown={(event) => {
@@ -189,7 +218,7 @@ useEffect(() => {
     }
   }}
 />
-            <div className="task-composer__priority">
+            {showPriority && <div className="task-composer__priority">
               <p className="task-composer__priority-label">
                 Priority
               </p>
@@ -235,7 +264,7 @@ useEffect(() => {
                   );
                 })}
               </div>
-            </div>
+            </div>}
 
             <div className="task-composer__actions">
               <button
@@ -261,4 +290,4 @@ useEffect(() => {
   );
 }
 
-export default TaskComposer;
+export default Composer;

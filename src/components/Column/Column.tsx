@@ -8,7 +8,7 @@ import {
 } from "framer-motion";
 import type { Task } from "../../types";
 import TaskCard from "../TaskCard/TaskCard";
-import TaskComposer from "../TaskComposer/TaskComposer";
+import TaskComposer from "../Composer/Composer";
 import "./Column.css";
 
 type ColumnProps = {
@@ -113,7 +113,7 @@ function Column({
               {isTodoColumn &&
                 onAddTask &&
                 !editingTask && (
-                  <TaskComposer onAdd={onAddTask} />
+                  <TaskComposer  showPriority mode='task' onAdd={onAddTask} />
                 )}
 
               {tasks.length === 0 ? (
@@ -158,6 +158,8 @@ function Column({
                               }}
                             >
                               <TaskComposer
+                                mode='task'
+                                showPriority
                                 initialTask={task}
                                 submitLabel="Save"
                                 onCancel={() =>
