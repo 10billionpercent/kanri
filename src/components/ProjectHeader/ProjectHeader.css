@@ -93,10 +93,9 @@
 
 .project-header__project {
   justify-self: start;
-  margin-top: 12px;
   padding: 14px;
-  border: none;
-  border-radius: 8px;
+  border: 1px solid var(--blue-light);
+  border-radius: 16px;
   background: transparent;
   color: var(--body);
   font-family: var(--body-font);
@@ -116,10 +115,5 @@
 .project-header__project--selected {
   background: var(--blue-light);
   color: var(--background);
-  box-shadow: 0 6px 20px
-    color-mix(
-      in srgb,
-      var(--blue-light) 35%,
-      transparent
-    );
+  filter: drop-shadow(0 0 8px var(--blue-light));
 }

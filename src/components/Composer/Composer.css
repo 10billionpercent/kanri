@@ -1,12 +1,8 @@
-.task-composer {
-  margin-bottom: 16px;
-}
-
 .task-composer__trigger {
   width: 100%;
-  min-height: 46px;
-  padding: 0 14px;
-  border-radius: 8px;
+  padding: 14px;
+  margin: 0;
+  border-radius: 16px;
   background: var(--background);
   color: var(--column-color);
   font: inherit;
@@ -43,6 +39,7 @@
 }
 
 .task-composer__editor {
+  min-width: 300px;
   overflow: hidden;
   display: grid;
   gap: 12px;

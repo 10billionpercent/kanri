@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -9,7 +10,6 @@ import { TaskStatuses } from "../../types";
 import { clearUser as clearStoredUser, loadProjects, saveProjects } from "../../db";
 import Composer  from "../Composer/Composer";
 import { setProjects, addProject, updateProject, deleteProject, setCurrentProject} from "../../reducers/projectReducer";
-import { useEffect } from "react";
 
 type ProjectHeaderProps = {
   project: Project;
@@ -29,6 +29,22 @@ function ProjectHeader({
   const user = useSelector((state: RootState) => state.user);
   const userName = user?.name || user?.username || "there";
   const currentProject = useSelector((state: RootState) => state.projects.currentProjectId);
+  const [showAllProjects, setShowAllProjects] = useState(false);
+
+  const sortedProjects = useMemo(() => {
+  return [...projects].sort(
+    (a, b) =>
+      new Date(b.updatedAt).getTime() -
+      new Date(a.updatedAt).getTime()
+  );
+}, [projects]);
+
+const visibleProjects = showAllProjects
+  ? sortedProjects
+  : sortedProjects.slice(0, 3);
+
+const hiddenProjectCount =
+  sortedProjects.length - visibleProjects.length;
 
     useEffect(() => {
     async function initializeProjects() {
@@ -131,21 +147,42 @@ function ProjectHeader({
 >
   Log out
 </button>
-  <Composer  mode='project' onAdd={handleAddProject} color="var(--blue-light)"/>
-{projects.map((p) => (
-  <button
-    key={p.id}
-    type="button"
-    className={`project-header__project ${
-      p.id === currentProject
-        ? "project-header__project--selected"
-        : ""
-    }`}
-    onClick={() => dispatch(setCurrentProject(p.id))}
-  >
-    {p.name}
-  </button>
-))}
+<div className="mt-1 flex flex-wrap items-end gap-5">
+  <Composer
+    mode="project"
+    onAdd={handleAddProject}
+    color="var(--blue-light)"
+  />
+
+  {visibleProjects.map((p) => (
+    <button
+      key={p.id}
+      type="button"
+      className={`project-header__project ${
+        p.id === currentProject
+          ? "project-header__project--selected"
+          : ""
+      }`}
+      onClick={() => dispatch(setCurrentProject(p.id))}
+    >
+      {p.name}
+    </button>
+  ))}
+
+  {sortedProjects.length > 3 && (
+    <button
+      type="button"
+      className="project-header__project"
+      onClick={() =>
+        setShowAllProjects((prev) => !prev)
+      }
+    >
+      {showAllProjects
+        ? "Show less"
+        : `+${hiddenProjectCount} more`}
+    </button>
+  )}
+</div>
     </header>
   );
 }
