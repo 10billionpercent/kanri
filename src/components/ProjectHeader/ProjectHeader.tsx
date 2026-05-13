@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { FolderOpen } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import type { RootState, AppDispatch } from "../../store";
@@ -32,6 +33,7 @@ function ProjectHeader({
   const userName = user?.name || user?.username || "there";
   const currentProject = useSelector((state: RootState) => state.projects.currentProjectId);
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
+  const projectPanelRef = useRef<HTMLDivElement>(null);
 
   const sortedProjects = useMemo(() => {
   return [...projects].sort(
@@ -52,6 +54,34 @@ const visibleProjects = sortedProjects.slice(0, 3);
     initializeProjects();
   }, [dispatch]);
 
+  useEffect(() => {
+  if (!isProjectModalOpen) {
+    return;
+  }
+
+  function handleClickOutside(event: MouseEvent) {
+    if (
+      projectPanelRef.current &&
+      !projectPanelRef.current.contains(
+        event.target as Node
+      )
+    ) {
+      setIsProjectModalOpen(false);
+    }
+  }
+
+  document.addEventListener(
+    "mousedown",
+    handleClickOutside
+  );
+
+  return () => {
+    document.removeEventListener(
+      "mousedown",
+      handleClickOutside
+    );
+  };
+}, [isProjectModalOpen]);
 
   const todoCount = tasks.filter(
     (task) => task.status === TaskStatuses.Todo
@@ -175,47 +205,70 @@ const visibleProjects = sortedProjects.slice(0, 3);
       {p.name}
     </button>
   ))}
-<div className="relative project-panel-wrapper">
+<div ref={projectPanelRef} className="relative project-panel-wrapper">
   <button
     type="button"
-    className="project-header__project"
+    className="project-panel__trigger"
     onClick={() =>
       setIsProjectModalOpen((prev) => !prev)
     }
   >
+    <FolderOpen size={20} />
     All Projects
   </button>
 
+  <AnimatePresence>
   {isProjectModalOpen && (
-    <div className="project-panel">
+    <motion.div
+      className="project-panel"
+      initial={{
+        opacity: 0,
+        y: -8,
+        transformOrigin: "top right",
+      }}
+      animate={{
+        opacity: 1,
+        y: 0,
+      }}
+      exit={{
+        opacity: 0,
+        y: -8,
+      }}
+      transition={{
+        duration: 0.4,
+        ease: "easeOut",
+      }}
+    >
       {sortedProjects.map((p) => (
-  <button
-    key={p.id}
-    type="button"
-    className={`project-panel__item ${
-      p.id === currentProject
-        ? "project-panel__item--selected"
-        : ""
-    }`}
-    onClick={() => {
-      dispatch(setCurrentProject(p.id));
-      setIsProjectModalOpen(false);
-    }}
-  >
-    <span className="project-panel__name">
-      {p.name} 
-    </span>
+        <button
+          key={p.id}
+          type="button"
+          className={`project-panel__item ${
+            p.id === currentProject
+              ? "project-panel__item--selected"
+              : ""
+          }`}
+          onClick={() => {
+            dispatch(setCurrentProject(p.id));
+            setIsProjectModalOpen(false);
+          }}
+        >
+          <span className="project-panel__name">
+            {p.name}
+          </span>
 
-    <span className="project-panel__date">
-      Updated {formatUpdatedAt(p.updatedAt)}
-    </span>
-    <span className="project-panel__progress">
-      {projectProgressMap[p.id]}
-    </span>
-  </button>
-))}
-    </div>
+          <span className="project-panel__progress">
+            {projectProgressMap[p.id]}
+          </span>
+
+          <span className="project-panel__date">
+            Updated {formatUpdatedAt(p.updatedAt)}
+          </span>
+        </button>
+      ))}
+    </motion.div>
   )}
+</AnimatePresence>
 </div>
 </div>
     </header>

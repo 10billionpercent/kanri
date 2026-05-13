@@ -118,6 +118,24 @@
   filter: drop-shadow(0 0 8px var(--blue-light));
 }
 
+.project-panel__trigger {
+  width: 100%;
+  padding: 14px;
+  margin: 0;
+  border-radius: 16px;
+  background: var(--background);
+  color: var(--blue-light);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: var(--body-font);
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: end;
+  gap: 8px;
+}
+
 .project-panel {
   position: absolute;
   top: calc(100% + 12px);

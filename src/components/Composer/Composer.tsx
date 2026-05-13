@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Plus, Star } from "lucide-react";
+import { FolderPlus, FilePlus, Star } from "lucide-react";
 import type { Task } from "../../types";
 import { TaskPriorities } from "../../types";
 import "./Composer.css";
@@ -144,7 +144,9 @@ useEffect(() => {
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.2 }}
           >
-            <Plus size={16} />
+            {mode === 'task'
+            ? <FilePlus size={20} />
+            : <FolderPlus size={20} />}
             <span>Add {mode} </span>
           </motion.button>
         ) : (
