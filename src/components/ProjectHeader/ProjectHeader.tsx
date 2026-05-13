@@ -16,13 +16,15 @@ type ProjectHeaderProps = {
   tasks: Task[];
   phrase: string;
   projects: Project[];
+  projectProgressMap: Record<string, string>;
 };
 
 function ProjectHeader({
   project,
   tasks,
   phrase,
-  projects
+  projects,
+  projectProgressMap
 }: ProjectHeaderProps) {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
@@ -91,6 +93,16 @@ const visibleProjects = sortedProjects.slice(0, 3);
 
     return `${project.name} • 0 total`;
   }
+
+  function formatUpdatedAt(dateString: string) {
+  const date = new Date(dateString);
+
+  return date.toLocaleDateString(undefined, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
 
     async function handleAddProject(title: string, description: string) {
     const newProject: Project = {
@@ -163,7 +175,7 @@ const visibleProjects = sortedProjects.slice(0, 3);
       {p.name}
     </button>
   ))}
-  <div className="relative">
+<div className="relative project-panel-wrapper">
   <button
     type="button"
     className="project-header__project"
@@ -177,22 +189,31 @@ const visibleProjects = sortedProjects.slice(0, 3);
   {isProjectModalOpen && (
     <div className="project-panel">
       {sortedProjects.map((p) => (
-        <button
-          key={p.id}
-          type="button"
-          className={`project-panel__item ${
-            p.id === currentProject
-              ? "project-panel__item--selected"
-              : ""
-          }`}
-          onClick={() => {
-            dispatch(setCurrentProject(p.id));
-            setIsProjectModalOpen(false);
-          }}
-        >
-          {p.name}
-        </button>
-      ))}
+  <button
+    key={p.id}
+    type="button"
+    className={`project-panel__item ${
+      p.id === currentProject
+        ? "project-panel__item--selected"
+        : ""
+    }`}
+    onClick={() => {
+      dispatch(setCurrentProject(p.id));
+      setIsProjectModalOpen(false);
+    }}
+  >
+    <span className="project-panel__name">
+      {p.name} 
+    </span>
+
+    <span className="project-panel__date">
+      Updated {formatUpdatedAt(p.updatedAt)}
+    </span>
+    <span className="project-panel__progress">
+      {projectProgressMap[p.id]}
+    </span>
+  </button>
+))}
     </div>
   )}
 </div>

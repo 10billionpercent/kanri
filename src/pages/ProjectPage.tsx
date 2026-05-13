@@ -74,7 +74,7 @@ const hasDummyProject = userProjects.some(
 const allProjects = hasDummyProject
   ? userProjects
   : [dummyProject, ...userProjects];
-  
+
 const currentProject =
   allProjects.find(
     (project) => project.id === currentProjectId
@@ -87,6 +87,24 @@ const visibleTasks =
         (task) =>
           task.projectID === currentProject.id
       );
+
+  const projectProgressMap: Record<string, string> = {};
+
+for (const project of allProjects) {
+  const projectTasks =
+    project.id === dummyProject.id
+      ? dummyTasks
+      : userTasks.filter(
+          (task) => task.projectID === project.id
+        );
+
+  const doingCount = projectTasks.filter(
+    (task) => task.status === TaskStatuses.Doing
+  ).length;
+
+  projectProgressMap[project.id] =
+    `${doingCount}/${projectTasks.length} in progress`;
+}
 
   useEffect(() => {
   async function initializeTasks() {
@@ -223,6 +241,7 @@ async function handleEdit(
           tasks={visibleTasks}
           phrase="Keep moving."
           projects={allProjects}
+          projectProgressMap={projectProgressMap}
         />
 
         <section className="grid items-start gap-4 sm:grid-cols-2 xl:grid-cols-3">

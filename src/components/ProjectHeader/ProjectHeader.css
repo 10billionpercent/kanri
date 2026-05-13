@@ -149,7 +149,7 @@
   width: 100%;
   padding: 12px 14px;
   border: 1px solid transparent;
-  border-radius: 12px;
+  border-radius: 16px;
   background: transparent;
   color: var(--body);
   font-weight: 700;
@@ -158,6 +158,42 @@
   transition:
     background-color 0.2s ease,
     border-color 0.2s ease;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    "name progress"
+    ".    date";
+  gap: 4px 16px;
+  align-items: start;
+}
+
+.project-panel__name {
+  grid-area: name;
+  font-weight: 700;
+}
+
+.project-panel__progress {
+  grid-area: progress;
+  font-size: 0.8rem;
+  color: color-mix(
+    in srgb,
+    var(--body) 55%,
+    transparent
+  );
+  text-align: right;
+  white-space: nowrap;
+}
+
+.project-panel__date {
+  grid-area: date;
+  font-size: 0.85rem;
+  color: color-mix(
+    in srgb,
+    var(--body) 55%,
+    transparent
+  );
+  text-align: right;
+  white-space: nowrap;
 }
 
 .project-panel__item:hover {
@@ -169,7 +205,34 @@
   color: var(--body);
 }
 
-.project-panel__item--selected {
+.project-panel__item--selected, .project-panel__item--selected:hover {
   background: var(--blue-light);
   color: var(--background);
+}
+
+.project-panel__item--selected .project-panel__date {
+  color: var(--background);
+}
+
+.project-panel__item--selected .project-panel__progress {
+  color: var(--background);
+}
+
+@media (max-width: 640px) {
+  .project-panel-wrapper {
+    width: 100%;
+  }
+
+  .project-panel {
+    position: absolute;
+    top: calc(100% + 12px);
+    left: 0;
+    right: 0;
+    margin-inline: auto;
+
+    width: min(420px, calc(100vw - 32px));
+    max-width: 100%;
+
+    transform: none;
+  }
 }
