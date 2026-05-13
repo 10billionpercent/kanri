@@ -4,9 +4,10 @@ import Column from "../components/Column/Column";
 import ProjectHeader from "../components/ProjectHeader/ProjectHeader";
 import { TaskPriorities, TaskStatuses } from "../types";
 import type { Project, Task } from "../types";
-import { loadTasks, saveTasks } from "../db";
+import { loadTasks, saveProjects, saveTasks } from "../db";
 import type { RootState, AppDispatch } from "../store";
 import { addTask, deleteTask, setTasks, updateTask } from "../reducers/taskReducer";
+import { updateProject } from "../reducers/projectReducer";
 
 const dummyProject: Project = {
   id: "project-kanri",
@@ -125,7 +126,30 @@ for (const project of allProjects) {
     return visibleTasks.filter((task) => task.status === status);
   }
 
-  function handleMoveLeft(taskToMove: Task) {
+  async function touchCurrentProject() {
+  if (currentProject.id === dummyProject.id) {
+    return;
+  }
+
+  const updatedProject: Project = {
+    ...currentProject,
+    updatedAt: new Date().toISOString(),
+  };
+
+  dispatch(updateProject(updatedProject));
+
+  const updatedProjects = allProjects.filter(
+    (project) => project.id !== dummyProject.id
+  ).map((project) =>
+    project.id === updatedProject.id
+      ? updatedProject
+      : project
+  );
+
+  await saveProjects(updatedProjects);
+}
+
+  async function handleMoveLeft(taskToMove: Task) {
   let newStatus = taskToMove.status;
 
   if (taskToMove.status === TaskStatuses.Doing) {
@@ -147,9 +171,10 @@ for (const project of allProjects) {
   );
 
   saveTasks(updatedTasks);
+  await touchCurrentProject();
 }
 
-function handleMoveRight(taskToMove: Task) {
+async function handleMoveRight(taskToMove: Task) {
   let newStatus = taskToMove.status;
 
   if (taskToMove.status === TaskStatuses.Todo) {
@@ -171,10 +196,12 @@ function handleMoveRight(taskToMove: Task) {
   );
 
   saveTasks(updatedTasks);
+  await touchCurrentProject();
 }
 
-  function handleDelete(taskToDelete: Task) {
+  async function handleDelete(taskToDelete: Task) {
     dispatch(deleteTask(taskToDelete.id));
+    await touchCurrentProject();
   }
 
 async function handleEdit(
@@ -206,6 +233,7 @@ async function handleEdit(
   );
 
   await saveTasks(updatedTasks);
+  await touchCurrentProject();
 }
 
   async function handleAddTask(title: string, description: string, priority: 1 | 2 | 3) {
@@ -231,6 +259,7 @@ async function handleEdit(
   dispatch(addTask(newTask));
 
   await saveTasks([newTask, ...visibleTasks]);
+  await touchCurrentProject();
 }
 
   return (
