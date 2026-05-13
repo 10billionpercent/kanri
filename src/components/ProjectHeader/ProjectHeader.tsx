@@ -29,7 +29,7 @@ function ProjectHeader({
   const user = useSelector((state: RootState) => state.user);
   const userName = user?.name || user?.username || "there";
   const currentProject = useSelector((state: RootState) => state.projects.currentProjectId);
-  const [showAllProjects, setShowAllProjects] = useState(false);
+  const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
 
   const sortedProjects = useMemo(() => {
   return [...projects].sort(
@@ -39,12 +39,7 @@ function ProjectHeader({
   );
 }, [projects]);
 
-const visibleProjects = showAllProjects
-  ? sortedProjects
-  : sortedProjects.slice(0, 3);
-
-const hiddenProjectCount =
-  sortedProjects.length - visibleProjects.length;
+const visibleProjects = sortedProjects.slice(0, 3);
 
     useEffect(() => {
     async function initializeProjects() {
@@ -168,20 +163,39 @@ const hiddenProjectCount =
       {p.name}
     </button>
   ))}
+  <div className="relative">
+  <button
+    type="button"
+    className="project-header__project"
+    onClick={() =>
+      setIsProjectModalOpen((prev) => !prev)
+    }
+  >
+    All Projects
+  </button>
 
-  {sortedProjects.length > 3 && (
-    <button
-      type="button"
-      className="project-header__project"
-      onClick={() =>
-        setShowAllProjects((prev) => !prev)
-      }
-    >
-      {showAllProjects
-        ? "Show less"
-        : `+${hiddenProjectCount} more`}
-    </button>
+  {isProjectModalOpen && (
+    <div className="project-panel">
+      {sortedProjects.map((p) => (
+        <button
+          key={p.id}
+          type="button"
+          className={`project-panel__item ${
+            p.id === currentProject
+              ? "project-panel__item--selected"
+              : ""
+          }`}
+          onClick={() => {
+            dispatch(setCurrentProject(p.id));
+            setIsProjectModalOpen(false);
+          }}
+        >
+          {p.name}
+        </button>
+      ))}
+    </div>
   )}
+</div>
 </div>
     </header>
   );

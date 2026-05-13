@@ -67,17 +67,19 @@ const currentProjectId = useSelector(
 );
 const dispatch = useDispatch<AppDispatch>();
 
-// Always include the built-in demo project
-const allProjects = [dummyProject, ...userProjects];
+const hasDummyProject = userProjects.some(
+  (project) => project.id === dummyProject.id
+);
 
-// Find currently selected project
+const allProjects = hasDummyProject
+  ? userProjects
+  : [dummyProject, ...userProjects];
+  
 const currentProject =
   allProjects.find(
     (project) => project.id === currentProjectId
   ) ?? dummyProject;
 
-// Show dummy tasks if dummy project is selected,
-// otherwise show only tasks belonging to the selected project
 const visibleTasks =
   currentProject.id === dummyProject.id
     ? dummyTasks

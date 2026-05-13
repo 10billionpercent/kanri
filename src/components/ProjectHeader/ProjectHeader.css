@@ -117,3 +117,59 @@
   color: var(--background);
   filter: drop-shadow(0 0 8px var(--blue-light));
 }
+
+.project-panel {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  z-index: 100;
+  font-family: var(--body-font);
+
+  width: min(420px, 90vw);
+  max-height: 360px;
+  overflow-y: auto;
+
+  padding: 12px;
+  display: grid;
+  gap: 8px;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--background);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.45),
+    0 0 0 1px color-mix(
+      in srgb,
+      var(--body) 4%,
+      transparent
+    );
+}
+
+.project-panel__item {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--body);
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.project-panel__item:hover {
+  background: color-mix(
+    in srgb,
+    var(--blue-light) 10%,
+    transparent
+  );
+  color: var(--body);
+}
+
+.project-panel__item--selected {
+  background: var(--blue-light);
+  color: var(--background);
+}
