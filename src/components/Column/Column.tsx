@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
 import { ChevronDown } from "lucide-react";
 import {
@@ -41,12 +41,29 @@ function Column({
   onMoveRight,
   onAddTask,
 }: ColumnProps) {
-  const [isExpanded, setIsExpanded] = useState(true);
   const [editingTask, setEditingTask] =
     useState<Task | null>(null);
 
   const formattedTitle = title.toUpperCase();
   const isTodoColumn = title === "todo";
+  const [isExpanded, setIsExpanded] = useState(
+  () => window.innerWidth > 640
+);
+
+useEffect(() => {
+  function handleResize() {
+    setIsExpanded(window.innerWidth > 640);
+  }
+
+  window.addEventListener("resize", handleResize);
+
+  return () => {
+    window.removeEventListener(
+      "resize",
+      handleResize
+    );
+  };
+}, []);
 
   return (
     <section
@@ -113,7 +130,7 @@ function Column({
               {isTodoColumn &&
                 onAddTask &&
                 !editingTask && (
-                  <TaskComposer  showPriority mode='task' onAdd={onAddTask} />
+                  <TaskComposer  showPriority mode='Task' onAdd={onAddTask} />
                 )}
 
               {tasks.length === 0 ? (
@@ -158,7 +175,7 @@ function Column({
                               }}
                             >
                               <TaskComposer
-                                mode='task'
+                                mode='Task'
                                 showPriority
                                 initialTask={task}
                                 submitLabel="Save"

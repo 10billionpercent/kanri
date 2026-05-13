@@ -9,7 +9,7 @@ import "./Composer.css";
 type BaseComposerProps = {
   initialTask?: Task;
   submitLabel?: string;
-  mode: "task" | "project";
+  mode: "Task" | "Project";
   onCancel?: () => void;
   color?: string;
 };
@@ -144,7 +144,7 @@ useEffect(() => {
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.2 }}
           >
-            {mode === 'task'
+            {mode === 'Task'
             ? <FilePlus size={20} />
             : <FolderPlus size={20} />}
             <span>Add {mode} </span>

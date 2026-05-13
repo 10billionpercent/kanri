@@ -186,7 +186,7 @@ const visibleProjects = sortedProjects.slice(0, 3);
 </button>
 <div className="mt-1 flex flex-wrap items-end gap-5">
   <Composer
-    mode="project"
+    mode="Project"
     onAdd={handleAddProject}
     color="var(--blue-light)"
   />
