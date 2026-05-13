@@ -6,27 +6,38 @@ import { clearUser } from "../../reducers/userReducer";
 import "./ProjectHeader.css";
 import type { Project, Task } from "../../types";
 import { TaskStatuses } from "../../types";
-import { clearUser as clearStoredUser, saveProjects } from "../../db";
+import { clearUser as clearStoredUser, loadProjects, saveProjects } from "../../db";
 import Composer  from "../Composer/Composer";
 import { setProjects, addProject, updateProject, deleteProject, setCurrentProject} from "../../reducers/projectReducer";
+import { useEffect } from "react";
 
 type ProjectHeaderProps = {
   project: Project;
   tasks: Task[];
   phrase: string;
+  projects: Project[];
 };
 
 function ProjectHeader({
   project,
   tasks,
   phrase,
+  projects
 }: ProjectHeaderProps) {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const user = useSelector((state: RootState) => state.user);
   const userName = user?.name || user?.username || "there";
-  const projects = useSelector((state: RootState) => state.projects.allProjects);
   const currentProject = useSelector((state: RootState) => state.projects.currentProjectId);
+
+    useEffect(() => {
+    async function initializeProjects() {
+      const savedTasks = await loadProjects();
+      dispatch(setProjects(savedTasks));
+    }
+  
+    initializeProjects();
+  }, [dispatch]);
 
 
   const todoCount = tasks.filter(

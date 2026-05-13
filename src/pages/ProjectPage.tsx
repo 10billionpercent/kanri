@@ -10,7 +10,7 @@ import { addTask, deleteTask, setTasks, updateTask } from "../reducers/taskReduc
 
 const dummyProject: Project = {
   id: "project-kanri",
-  name: "Kanri",
+  name: "dummy project",
   description: "The main Kanri application project.",
   createdAt: "2026-05-09T08:00:00.000Z",
   updatedAt: "2026-05-09T08:00:00.000Z",
@@ -58,8 +58,33 @@ const dummyTasks: Task[] = [
 ];
 
 function ProjectPage() {
-  const tasks = useSelector((state: RootState) => state.tasks);
-  const dispatch = useDispatch<AppDispatch>();
+  const userTasks = useSelector((state: RootState) => state.tasks);
+const userProjects = useSelector(
+  (state: RootState) => state.projects.allProjects
+);
+const currentProjectId = useSelector(
+  (state: RootState) => state.projects.currentProjectId
+);
+const dispatch = useDispatch<AppDispatch>();
+
+// Always include the built-in demo project
+const allProjects = [dummyProject, ...userProjects];
+
+// Find currently selected project
+const currentProject =
+  allProjects.find(
+    (project) => project.id === currentProjectId
+  ) ?? dummyProject;
+
+// Show dummy tasks if dummy project is selected,
+// otherwise show only tasks belonging to the selected project
+const visibleTasks =
+  currentProject.id === dummyProject.id
+    ? dummyTasks
+    : userTasks.filter(
+        (task) =>
+          task.projectID === currentProject.id
+      );
 
   useEffect(() => {
   async function initializeTasks() {
@@ -77,7 +102,7 @@ function ProjectPage() {
 }, [dispatch]);
 
   function getTasksByStatus(status: Task["status"]) {
-    return tasks.filter((task) => task.status === status);
+    return visibleTasks.filter((task) => task.status === status);
   }
 
   function handleMoveLeft(taskToMove: Task) {
@@ -97,7 +122,7 @@ function ProjectPage() {
 
   dispatch(updateTask(updatedTask));
 
-  const updatedTasks = tasks.map((task) =>
+  const updatedTasks = visibleTasks.map((task) =>
     task.id === updatedTask.id ? updatedTask : task
   );
 
@@ -121,7 +146,7 @@ function handleMoveRight(taskToMove: Task) {
 
   dispatch(updateTask(updatedTask));
 
-  const updatedTasks = tasks.map((task) =>
+  const updatedTasks = visibleTasks.map((task) =>
     task.id === updatedTask.id ? updatedTask : task
   );
 
@@ -154,7 +179,7 @@ async function handleEdit(
 
   dispatch(updateTask(updatedTask));
 
-  const updatedTasks = tasks.map((task) =>
+  const updatedTasks = visibleTasks.map((task) =>
     task.id === updatedTask.id
       ? updatedTask
       : task
@@ -169,9 +194,12 @@ async function handleEdit(
     2: TaskPriorities.Medium,
     3: TaskPriorities.High,
   } as const;
+   if (currentProject.id === dummyProject.id) {
+    return;
+  }
   const newTask: Task = {
     id: crypto.randomUUID(),
-    projectID: dummyProject.id,
+    projectID: currentProjectId,
     name: title,
     description: description || undefined,
     priority: priorityMap[priority],
@@ -182,16 +210,17 @@ async function handleEdit(
 
   dispatch(addTask(newTask));
 
-  await saveTasks([newTask, ...tasks]);
+  await saveTasks([newTask, ...visibleTasks]);
 }
 
   return (
     <main className="min-h-svh p-4 sm:p-6">
       <div className="mx-auto w-full max-w-6xl">
         <ProjectHeader
-          project={dummyProject}
-          tasks={tasks}
+          project={currentProject}
+          tasks={visibleTasks}
           phrase="Keep moving."
+          projects={allProjects}
         />
 
         <section className="grid items-start gap-4 sm:grid-cols-2 xl:grid-cols-3">
