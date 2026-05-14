@@ -12,7 +12,7 @@ type TaskProps = {
   onMoveRight?: (task: TaskData) => void;
 };
 
-function Task({
+function TaskCard({
   task,
   onEdit,
   onDelete,
@@ -106,4 +106,4 @@ function Task({
   );
 }
 
-export default Task;
+export default TaskCard;
