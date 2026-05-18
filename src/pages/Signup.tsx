@@ -155,7 +155,7 @@ const createSyncAccount = async (
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-0 xl:gap-12 p-6 sm:p-8">
           <div>
             <div className="brand-row">
-              <img src="src/public/kanri-logo.png" width="80" height="80" alt="Kanri logo" />
+              <img src="public/kanri-logo.png" width="80" height="80" alt="Kanri logo" />
             </div>
             <h1>Kanri</h1>
             <p className="tagline">
