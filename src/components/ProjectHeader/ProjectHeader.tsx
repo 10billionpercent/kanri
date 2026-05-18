@@ -27,8 +27,9 @@ function ProjectHeader({
 }: ProjectHeaderProps) {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const user = useSelector((state: RootState) => state.user);
-  const allProjects = useSelector(
+const user = useSelector(
+  (state: RootState): RootState["user"] => state.user
+);  const allProjects = useSelector(
   (state: RootState) => state.projects.allProjects
 );
   const userName = user?.name || user?.username || "there";

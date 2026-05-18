@@ -245,6 +245,11 @@ async function handleEdit(
    if (currentProject.id === dummyProject.id) {
     return;
   }
+
+  if (!currentProjectId) {
+  return null;
+}
+
   const newTask: Task = {
     id: crypto.randomUUID(),
     projectID: currentProjectId,

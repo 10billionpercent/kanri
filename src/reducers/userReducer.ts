@@ -10,12 +10,16 @@ const initialState: UserState | null = null;
 
 const userSlice = createSlice({
   name: "user",
-  initialState,
+  initialState: initialState as UserState | null,
   reducers: {
-    setUser(_state, action: PayloadAction<UserState | null>) {
+    setUser(
+      _state,
+      action: PayloadAction<UserState | null>
+    ) {
       return action.payload;
     },
-    clearUser() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    clearUser(_state) {
       return null;
     },
   },
