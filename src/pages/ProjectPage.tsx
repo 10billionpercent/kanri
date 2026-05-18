@@ -6,13 +6,18 @@ import { TaskPriorities, TaskStatuses } from "../types";
 import type { Project, Task } from "../types";
 import { loadTasks, saveProjects, saveTasks } from "../db";
 import type { RootState, AppDispatch } from "../store";
-import { addTask, deleteTask, setTasks, updateTask } from "../reducers/taskReducer";
+import {
+  addTask,
+  deleteTask,
+  setTasks,
+  updateTask,
+} from "../reducers/taskReducer";
 import { updateProject } from "../reducers/projectReducer";
 
 const dummyProject: Project = {
-  id: "project-kanri",
+  id: "project-nagare",
   name: "dummy project",
-  description: "The main Kanri application project.",
+  description: "The main nagare application project.",
   createdAt: "2026-05-09T08:00:00.000Z",
   updatedAt: "2026-05-09T08:00:00.000Z",
 };
@@ -20,7 +25,7 @@ const dummyProject: Project = {
 const dummyTasks: Task[] = [
   {
     id: "task-1",
-    projectID: "project-kanri",
+    projectID: "project-nagare",
     name: "Shape the signup flow",
     description: "Local-first entry with optional sync.",
     priority: TaskPriorities.High,
@@ -30,7 +35,7 @@ const dummyTasks: Task[] = [
   },
   {
     id: "task-2",
-    projectID: "project-kanri",
+    projectID: "project-nagare",
     name: "Test column collapse behavior",
     priority: TaskPriorities.Medium,
     status: TaskStatuses.Todo,
@@ -39,7 +44,7 @@ const dummyTasks: Task[] = [
   },
   {
     id: "task-3",
-    projectID: "project-kanri",
+    projectID: "project-nagare",
     name: "Create reusable Column component",
     description: "Header, task count, color prop, and expand/collapse.",
     priority: TaskPriorities.High,
@@ -49,7 +54,7 @@ const dummyTasks: Task[] = [
   },
   {
     id: "task-4",
-    projectID: "project-kanri",
+    projectID: "project-nagare",
     name: "Add React Router",
     priority: TaskPriorities.Low,
     status: TaskStatuses.Done,
@@ -60,212 +65,206 @@ const dummyTasks: Task[] = [
 
 function ProjectPage() {
   const userTasks = useSelector((state: RootState) => state.tasks);
-const userProjects = useSelector(
-  (state: RootState) => state.projects.allProjects
-);
-const currentProjectId = useSelector(
-  (state: RootState) => state.projects.currentProjectId
-);
-const dispatch = useDispatch<AppDispatch>();
+  const userProjects = useSelector(
+    (state: RootState) => state.projects.allProjects,
+  );
+  const currentProjectId = useSelector(
+    (state: RootState) => state.projects.currentProjectId,
+  );
+  const dispatch = useDispatch<AppDispatch>();
 
-const hasDummyProject = userProjects.some(
-  (project) => project.id === dummyProject.id
-);
+  const hasDummyProject = userProjects.some(
+    (project) => project.id === dummyProject.id,
+  );
 
-const allProjects = hasDummyProject
-  ? userProjects
-  : [dummyProject, ...userProjects];
+  const allProjects = hasDummyProject
+    ? userProjects
+    : [dummyProject, ...userProjects];
 
-const currentProject =
-  allProjects.find(
-    (project) => project.id === currentProjectId
-  ) ?? dummyProject;
+  const currentProject =
+    allProjects.find((project) => project.id === currentProjectId) ??
+    dummyProject;
 
-const visibleTasks =
-  currentProject.id === dummyProject.id
-    ? dummyTasks
-    : userTasks.filter(
-        (task) =>
-          task.projectID === currentProject.id
-      );
+  const visibleTasks =
+    currentProject.id === dummyProject.id
+      ? dummyTasks
+      : userTasks.filter((task) => task.projectID === currentProject.id);
 
   const projectProgressMap: Record<string, string> = {};
 
-for (const project of allProjects) {
-  const projectTasks =
-    project.id === dummyProject.id
-      ? dummyTasks
-      : userTasks.filter(
-          (task) => task.projectID === project.id
-        );
+  for (const project of allProjects) {
+    const projectTasks =
+      project.id === dummyProject.id
+        ? dummyTasks
+        : userTasks.filter((task) => task.projectID === project.id);
 
-  const doingCount = projectTasks.filter(
-    (task) => task.status === TaskStatuses.Doing
-  ).length;
+    const doingCount = projectTasks.filter(
+      (task) => task.status === TaskStatuses.Doing,
+    ).length;
 
-  projectProgressMap[project.id] =
-    `${doingCount}/${projectTasks.length} in progress`;
-}
-
-  useEffect(() => {
-  async function initializeTasks() {
-    const savedTasks = await loadTasks();
-
-    if (savedTasks.length > 0) {
-      dispatch(setTasks(savedTasks));
-    } else {
-      dispatch(setTasks(dummyTasks));
-      await saveTasks(dummyTasks);
-    }
+    projectProgressMap[project.id] =
+      `${doingCount}/${projectTasks.length} in progress`;
   }
 
-  initializeTasks();
-}, [dispatch]);
+  useEffect(() => {
+    async function initializeTasks() {
+      const savedTasks = await loadTasks();
+
+      if (savedTasks.length > 0) {
+        dispatch(setTasks(savedTasks));
+      } else {
+        dispatch(setTasks(dummyTasks));
+        await saveTasks(dummyTasks);
+      }
+    }
+
+    initializeTasks();
+  }, [dispatch]);
 
   function getTasksByStatus(status: Task["status"]) {
     return visibleTasks.filter((task) => task.status === status);
   }
 
   async function touchCurrentProject() {
-  if (currentProject.id === dummyProject.id) {
-    return;
+    if (currentProject.id === dummyProject.id) {
+      return;
+    }
+
+    const updatedProject: Project = {
+      ...currentProject,
+      updatedAt: new Date().toISOString(),
+    };
+
+    dispatch(updateProject(updatedProject));
+
+    const updatedProjects = allProjects
+      .filter((project) => project.id !== dummyProject.id)
+      .map((project) =>
+        project.id === updatedProject.id ? updatedProject : project,
+      );
+
+    await saveProjects(updatedProjects);
   }
-
-  const updatedProject: Project = {
-    ...currentProject,
-    updatedAt: new Date().toISOString(),
-  };
-
-  dispatch(updateProject(updatedProject));
-
-  const updatedProjects = allProjects.filter(
-    (project) => project.id !== dummyProject.id
-  ).map((project) =>
-    project.id === updatedProject.id
-      ? updatedProject
-      : project
-  );
-
-  await saveProjects(updatedProjects);
-}
 
   async function handleMoveLeft(taskToMove: Task) {
-  let newStatus = taskToMove.status;
+    let newStatus = taskToMove.status;
 
-  if (taskToMove.status === TaskStatuses.Doing) {
-    newStatus = TaskStatuses.Todo;
-  } else if (taskToMove.status === TaskStatuses.Done) {
-    newStatus = TaskStatuses.Doing;
+    if (taskToMove.status === TaskStatuses.Doing) {
+      newStatus = TaskStatuses.Todo;
+    } else if (taskToMove.status === TaskStatuses.Done) {
+      newStatus = TaskStatuses.Doing;
+    }
+
+    const updatedTask: Task = {
+      ...taskToMove,
+      status: newStatus,
+      updatedAt: new Date().toISOString(),
+    };
+
+    dispatch(updateTask(updatedTask));
+
+    const updatedTasks = visibleTasks.map((task) =>
+      task.id === updatedTask.id ? updatedTask : task,
+    );
+
+    saveTasks(updatedTasks);
+    await touchCurrentProject();
   }
 
-  const updatedTask: Task = {
-    ...taskToMove,
-    status: newStatus,
-    updatedAt: new Date().toISOString(),
-  };
+  async function handleMoveRight(taskToMove: Task) {
+    let newStatus = taskToMove.status;
 
-  dispatch(updateTask(updatedTask));
+    if (taskToMove.status === TaskStatuses.Todo) {
+      newStatus = TaskStatuses.Doing;
+    } else if (taskToMove.status === TaskStatuses.Doing) {
+      newStatus = TaskStatuses.Done;
+    }
 
-  const updatedTasks = visibleTasks.map((task) =>
-    task.id === updatedTask.id ? updatedTask : task
-  );
+    const updatedTask: Task = {
+      ...taskToMove,
+      status: newStatus,
+      updatedAt: new Date().toISOString(),
+    };
 
-  saveTasks(updatedTasks);
-  await touchCurrentProject();
-}
+    dispatch(updateTask(updatedTask));
 
-async function handleMoveRight(taskToMove: Task) {
-  let newStatus = taskToMove.status;
+    const updatedTasks = visibleTasks.map((task) =>
+      task.id === updatedTask.id ? updatedTask : task,
+    );
 
-  if (taskToMove.status === TaskStatuses.Todo) {
-    newStatus = TaskStatuses.Doing;
-  } else if (taskToMove.status === TaskStatuses.Doing) {
-    newStatus = TaskStatuses.Done;
+    saveTasks(updatedTasks);
+    await touchCurrentProject();
   }
-
-  const updatedTask: Task = {
-    ...taskToMove,
-    status: newStatus,
-    updatedAt: new Date().toISOString(),
-  };
-
-  dispatch(updateTask(updatedTask));
-
-  const updatedTasks = visibleTasks.map((task) =>
-    task.id === updatedTask.id ? updatedTask : task
-  );
-
-  saveTasks(updatedTasks);
-  await touchCurrentProject();
-}
 
   async function handleDelete(taskToDelete: Task) {
     dispatch(deleteTask(taskToDelete.id));
     await touchCurrentProject();
   }
 
-async function handleEdit(
-  taskToEdit: Task,
-  title: string,
-  description: string,
-  priority: 1 | 2 | 3
-) {
-  const priorityMap = {
-    1: TaskPriorities.Low,
-    2: TaskPriorities.Medium,
-    3: TaskPriorities.High,
-  } as const;
-
-  const updatedTask: Task = {
-    ...taskToEdit,
-    name: title,
-    description: description || undefined,
-    priority: priorityMap[priority],
-    updatedAt: new Date().toISOString(),
-  };
-
-  dispatch(updateTask(updatedTask));
-
-  const updatedTasks = visibleTasks.map((task) =>
-    task.id === updatedTask.id
-      ? updatedTask
-      : task
-  );
-
-  await saveTasks(updatedTasks);
-  await touchCurrentProject();
-}
-
-  async function handleAddTask(title: string, description: string, priority: 1 | 2 | 3) {
+  async function handleEdit(
+    taskToEdit: Task,
+    title: string,
+    description: string,
+    priority: 1 | 2 | 3,
+  ) {
     const priorityMap = {
-    1: TaskPriorities.Low,
-    2: TaskPriorities.Medium,
-    3: TaskPriorities.High,
-  } as const;
-   if (currentProject.id === dummyProject.id) {
-    return;
+      1: TaskPriorities.Low,
+      2: TaskPriorities.Medium,
+      3: TaskPriorities.High,
+    } as const;
+
+    const updatedTask: Task = {
+      ...taskToEdit,
+      name: title,
+      description: description || undefined,
+      priority: priorityMap[priority],
+      updatedAt: new Date().toISOString(),
+    };
+
+    dispatch(updateTask(updatedTask));
+
+    const updatedTasks = visibleTasks.map((task) =>
+      task.id === updatedTask.id ? updatedTask : task,
+    );
+
+    await saveTasks(updatedTasks);
+    await touchCurrentProject();
   }
 
-  if (!currentProjectId) {
-  return null;
-}
+  async function handleAddTask(
+    title: string,
+    description: string,
+    priority: 1 | 2 | 3,
+  ) {
+    const priorityMap = {
+      1: TaskPriorities.Low,
+      2: TaskPriorities.Medium,
+      3: TaskPriorities.High,
+    } as const;
+    if (currentProject.id === dummyProject.id) {
+      return;
+    }
 
-  const newTask: Task = {
-    id: crypto.randomUUID(),
-    projectID: currentProjectId,
-    name: title,
-    description: description || undefined,
-    priority: priorityMap[priority],
-    status: TaskStatuses.Todo,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
+    if (!currentProjectId) {
+      return null;
+    }
 
-  dispatch(addTask(newTask));
+    const newTask: Task = {
+      id: crypto.randomUUID(),
+      projectID: currentProjectId,
+      name: title,
+      description: description || undefined,
+      priority: priorityMap[priority],
+      status: TaskStatuses.Todo,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
 
-  await saveTasks([newTask, ...visibleTasks]);
-  await touchCurrentProject();
-}
+    dispatch(addTask(newTask));
+
+    await saveTasks([newTask, ...visibleTasks]);
+    await touchCurrentProject();
+  }
 
   return (
     <main className="min-h-svh p-4 sm:p-6">

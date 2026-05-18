@@ -11,17 +11,17 @@ export default defineConfig({
       devOptions: {
         enabled: true,
       },
-      includeAssets: ['kanri-logo.png'],
+      includeAssets: ['nagare-logo.png'],
       manifest: {
-        name: 'Kanri',
-        short_name: 'Kanri',
+        name: 'Nagare',
+        short_name: 'Nagare',
         start_url: '/project',
         display: 'standalone',
         background_color: '#0f172a',
         theme_color: '#0f172a',
         icons: [
           {
-            src: 'kanri-logo.png',
+            src: 'nagare-logo.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable',

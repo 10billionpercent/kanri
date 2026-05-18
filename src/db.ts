@@ -2,7 +2,7 @@ import { openDB } from "idb";
 import type { UserState } from "./reducers/userReducer";
 import type { Project, Task } from "./types";
 
-const DB_NAME = "kanri";
+const DB_NAME = "nagare";
 const STORE_NAME = "app";
 
 const USER_KEY = "currentUser";
@@ -47,9 +47,7 @@ export async function clearTasks(): Promise<void> {
   await db.delete(STORE_NAME, TASKS_KEY);
 }
 
-export async function saveProjects(
-  projects: Project[]
-): Promise<void> {
+export async function saveProjects(projects: Project[]): Promise<void> {
   const db = await dbPromise;
   await db.put(STORE_NAME, projects, PROJECTS_KEY);
 }

@@ -44,15 +44,6 @@
   gap: 40px;
 }
 
-.name-notice {
-  padding: 6px 10px;
-  border: 1px solid var(--blue-light-soft);
-  border-radius: 8px;
-  color: var(--blue-light);
-  font-size: 16px;
-  font-weight: 700;
-}
-
 .signup-forms {
   display: flex;
   flex-direction: row;
@@ -62,7 +53,6 @@
 .signup-panel h1 {
   margin: 0;
   font-size: 42px;
-  line-height: 1;
   font-family: var(--heading-font);
   color: transparent;
   background-image: linear-gradient(

@@ -1,16 +1,16 @@
-import { type SyntheticEvent, useEffect, useState, useRef } from 'react'
-import googleLogo from '../assets/google-logo.svg'
-import '../App.css'
-import { useDispatch } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
-import type { AppDispatch } from '../store'
-import { setUser } from '../reducers/userReducer'
-import { saveUser } from '../db'
+import { type SyntheticEvent, useEffect, useState, useRef } from "react";
+import googleLogo from "../assets/google-logo.svg";
+import "../App.css";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import type { AppDispatch } from "../store";
+import { setUser } from "../reducers/userReducer";
+import { saveUser } from "../db";
 
 type GoogleCredentialResponse = {
-  credential: string
-  select_by: string
-}
+  credential: string;
+  select_by: string;
+};
 
 declare global {
   interface Window {
@@ -18,152 +18,156 @@ declare global {
       accounts: {
         id: {
           initialize: (config: {
-            client_id: string
-            callback: (response: GoogleCredentialResponse) => void
-          }) => void
-          prompt: () => void
-        }
-      }
-    }
+            client_id: string;
+            callback: (response: GoogleCredentialResponse) => void;
+          }) => void;
+          prompt: () => void;
+        };
+      };
+    };
   }
 }
 
-const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID?.trim() ?? ''
+const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID?.trim() ?? "";
 
 function Signup() {
-  const dispatch = useDispatch<AppDispatch>()
-  const navigate = useNavigate()
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
 
-  const [name, setName] = useState('')
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
+  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [googleStatus, setGoogleStatus] = useState(() =>
-    googleClientId ? 'Ready to sync with Google' : 'Add VITE_GOOGLE_CLIENT_ID to .env',
-  )
+    googleClientId
+      ? "Ready to sync with Google"
+      : "Add VITE_GOOGLE_CLIENT_ID to .env",
+  );
 
-  const nameInputRef = useRef<HTMLInputElement>(null)
-  const usernameInputRef = useRef<HTMLInputElement>(null)
-  const passwordInputRef = useRef<HTMLInputElement>(null)
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const usernameInputRef = useRef<HTMLInputElement>(null);
+  const passwordInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!googleClientId) {
-      return
+      return;
     }
 
     const initializeGoogle = () => {
       window.google?.accounts.id.initialize({
         client_id: googleClientId,
         callback: (response) => {
-          setGoogleStatus(`Google token received (${response.select_by})`)
-          console.log('Google ID token:', response.credential)
+          setGoogleStatus(`Google token received (${response.select_by})`);
+          console.log("Google ID token:", response.credential);
         },
-      })
-    }
+      });
+    };
 
     const existingScript = document.querySelector<HTMLScriptElement>(
       'script[src="https://accounts.google.com/gsi/client"]',
-    )
+    );
 
     if (existingScript) {
-      initializeGoogle()
-      return
+      initializeGoogle();
+      return;
     }
 
-    const script = document.createElement('script')
-    script.src = 'https://accounts.google.com/gsi/client'
-    script.async = true
-    script.defer = true
-    script.onload = initializeGoogle
-    script.onerror = () => setGoogleStatus('Could not load Google sign-in')
-    document.head.appendChild(script)
-  }, [])
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    script.onload = initializeGoogle;
+    script.onerror = () => setGoogleStatus("Could not load Google sign-in");
+    document.head.appendChild(script);
+  }, []);
 
-  const continueLocally = async (
-  event: SyntheticEvent<HTMLFormElement>
-) => {
-  event.preventDefault();
+  const continueLocally = async (event: SyntheticEvent<HTMLFormElement>) => {
+    event.preventDefault();
 
-  const trimmedName = name.trim();
+    const trimmedName = name.trim();
 
-  if (!trimmedName) {
-    nameInputRef.current?.focus()
-    return;
-  }
+    if (!trimmedName) {
+      nameInputRef.current?.focus();
+      return;
+    }
 
-  const user = {
-    name: trimmedName,
-    authMode: "local" as const,
+    const user = {
+      name: trimmedName,
+      authMode: "local" as const,
+    };
+
+    dispatch(setUser(user));
+    await saveUser(user);
+
+    navigate("/project");
   };
 
-  dispatch(setUser(user));
-  await saveUser(user);
+  const createSyncAccount = async (event: SyntheticEvent<HTMLFormElement>) => {
+    event.preventDefault();
 
-  navigate("/project");
-};
+    const trimmedUsername = username.trim();
+    const trimmedPassword = password.trim();
 
-const createSyncAccount = async (
-  event: SyntheticEvent<HTMLFormElement>,
-) => {
-  event.preventDefault()
+    // Focus username first if empty
+    if (!trimmedUsername) {
+      usernameInputRef.current?.focus();
+      return;
+    }
 
-  const trimmedUsername = username.trim()
-  const trimmedPassword = password.trim()
+    // Then focus password if empty
+    if (!trimmedPassword) {
+      passwordInputRef.current?.focus();
+      return;
+    }
 
-  // Focus username first if empty
-  if (!trimmedUsername) {
-    usernameInputRef.current?.focus()
-    return
-  }
+    // Optional minimum length check
+    if (trimmedPassword.length < 8) {
+      passwordInputRef.current?.focus();
+      passwordInputRef.current?.select();
+      return;
+    }
 
-  // Then focus password if empty
-  if (!trimmedPassword) {
-    passwordInputRef.current?.focus()
-    return
-  }
+    const user = {
+      name: trimmedUsername,
+      username: trimmedUsername,
+      authMode: "account" as const,
+    };
 
-  // Optional minimum length check
-  if (trimmedPassword.length < 8) {
-    passwordInputRef.current?.focus()
-    passwordInputRef.current?.select()
-    return
-  }
+    dispatch(setUser(user));
+    await saveUser(user);
 
-  const user = {
-    name: trimmedUsername,
-    username: trimmedUsername,
-    authMode: 'account' as const,
-  }
-
-  dispatch(setUser(user))
-  await saveUser(user)
-
-  navigate('/project')
-}
+    navigate("/project");
+  };
 
   const signInWithGoogle = () => {
     if (!googleClientId) {
-      setGoogleStatus('Missing Google client ID')
-      return
+      setGoogleStatus("Missing Google client ID");
+      return;
     }
 
-    window.google?.accounts.id.prompt()
-  }
+    window.google?.accounts.id.prompt();
+  };
 
   return (
     <main className="signup-shell min-h-svh grid place-items-center p-4 sm:p-6">
-      <section className="signup-panel w-full max-w-6xl" aria-labelledby="signup-title">
+      <section
+        className="signup-panel w-full max-w-6xl"
+        aria-labelledby="signup-title"
+      >
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-0 xl:gap-12 p-6 sm:p-8">
           <div>
             <div className="brand-row">
-              <img src="public/kanri-logo.png" width="80" height="80" alt="Kanri logo" />
+              <img
+                src="public/nagare-logo.png"
+                width="80"
+                height="80"
+                alt="nagare logo"
+              />
             </div>
-            <h1>Kanri</h1>
+            <h1>Nagare</h1>
             <p className="tagline">
               More than a to-do list. Made for real workflow.
             </p>
-            <p className="signup-copy">
-              Start instantly.
-            </p>
+            <p className="signup-copy">Start instantly.</p>
             <form className="signup-form" onSubmit={continueLocally}>
               <label htmlFor="name">What should we call you?</label>
               <input
@@ -173,7 +177,7 @@ const createSyncAccount = async (
                 type="text"
                 value={name}
                 onChange={(event) => {
-                  setName(event.target.value)
+                  setName(event.target.value);
                 }}
                 placeholder="Sankarsana"
                 autoComplete="given-name"
@@ -188,7 +192,9 @@ const createSyncAccount = async (
             </div>
 
             <form className="signup-form" onSubmit={createSyncAccount}>
-              <label htmlFor="username">Username (only letters and numbers)</label>
+              <label htmlFor="username">
+                Username (only letters and numbers)
+              </label>
               <input
                 ref={usernameInputRef}
                 id="username"
@@ -196,7 +202,7 @@ const createSyncAccount = async (
                 type="text"
                 value={username}
                 onChange={(event) => {
-                  setUsername(event.target.value)
+                  setUsername(event.target.value);
                 }}
                 placeholder="sankarsana3012"
                 autoComplete="username"
@@ -209,14 +215,18 @@ const createSyncAccount = async (
                 type="password"
                 value={password}
                 onChange={(event) => {
-                  setPassword(event.target.value)
+                  setPassword(event.target.value);
                 }}
                 placeholder="Enter a secure password"
               />
               <button type="submit">Create sync account</button>
             </form>
 
-            <button type="button" className="google-button" onClick={signInWithGoogle}>
+            <button
+              type="button"
+              className="google-button"
+              onClick={signInWithGoogle}
+            >
               <img src={googleLogo} alt="" width="20" height="20" />
               <span>Continue with Google</span>
             </button>
@@ -225,7 +235,7 @@ const createSyncAccount = async (
         </div>
       </section>
     </main>
-  )
+  );
 }
 
-export default Signup
+export default Signup;

@@ -1,4 +1,4 @@
-.kanri-column {
+.nagare-column {
   align-self: start;
   border-radius: 8px;
   background:
@@ -13,16 +13,17 @@
   transition: background 0.24s ease;
 }
 
-.kanri-column__header {
+.nagare-column__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   padding: 14px 16px;
-  border-bottom: 1px solid color-mix(in srgb, var(--column-color) 30%, transparent);
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--column-color) 30%, transparent);
 }
 
-.kanri-column__title {
+.nagare-column__title {
   margin: 0;
   color: var(--body);
   font-family: var(--body-font);
@@ -32,7 +33,7 @@
   text-transform: uppercase;
 }
 
-.kanri-column__toggle {
+.nagare-column__toggle {
   width: 32px;
   height: 32px;
   display: inline-grid;
@@ -41,21 +42,21 @@
   cursor: pointer;
 }
 
-.kanri-column__toggle svg {
+.nagare-column__toggle svg {
   display: block;
 }
 
-.kanri-column__body-shell {
+.nagare-column__body-shell {
   overflow: hidden;
 }
 
-.kanri-column__body {
+.nagare-column__body {
   display: grid;
   gap: 10px;
   padding: 14px;
 }
 
-.kanri-column__empty {
+.nagare-column__empty {
   margin: 0;
   color: color-mix(in srgb, var(--body) 72%, transparent);
   font-family: var(--body-font);

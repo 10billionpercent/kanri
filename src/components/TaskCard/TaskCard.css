@@ -1,4 +1,4 @@
-.kanri-task {
+.nagare-task {
   padding: 12px;
   border: 1px solid color-mix(in srgb, var(--column-color) 24%, transparent);
   border-radius: 6px;
@@ -7,14 +7,14 @@
   font-family: var(--body-font);
 }
 
-.kanri-task__content {
+.nagare-task__content {
   display: flex;
   flex-direction: column;
   gap: 8px;
   width: 100%;
 }
 
-.kanri-task__title {
+.nagare-task__title {
   margin: 0;
   width: 100%;
   color: var(--body);
@@ -26,7 +26,7 @@
   overflow-wrap: break-word;
 }
 
-.kanri-task__actions {
+.nagare-task__actions {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
@@ -34,7 +34,7 @@
   align-items: center;
 }
 
-.kanri-task__description {
+.nagare-task__description {
   margin: 0;
   width: 100%;
   color: color-mix(in srgb, var(--body) 74%, transparent);
@@ -45,7 +45,7 @@
   overflow-wrap: break-word;
 }
 
-.kanri-task__button {
+.nagare-task__button {
   width: 32px;
   height: 32px;
   display: inline-grid;
@@ -57,18 +57,18 @@
   cursor: pointer;
 }
 
-.kanri-task__button--move {
+.nagare-task__button--move {
   color: var(--column-color);
 }
 
-.kanri-task__button svg {
+.nagare-task__button svg {
   display: block;
 }
 
-.kanri-task__triangle--left {
+.nagare-task__triangle--left {
   transform: rotate(-90deg);
 }
 
-.kanri-task__triangle--right {
+.nagare-task__triangle--right {
   transform: rotate(90deg);
 }

@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
 import { ChevronDown } from "lucide-react";
-import {
-  AnimatePresence,
-  LayoutGroup,
-  motion,
-} from "framer-motion";
+import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import type { Task } from "../../types";
 import TaskCard from "../TaskCard/TaskCard";
 import TaskComposer from "../Composer/Composer";
@@ -24,11 +20,7 @@ type ColumnProps = {
   onDelete?: (task: Task) => void;
   onMoveLeft?: (task: Task) => void;
   onMoveRight?: (task: Task) => void;
-  onAddTask?: (
-    title: string,
-    description: string,
-    priority: 1 | 2 | 3,
-  ) => void;
+  onAddTask?: (title: string, description: string, priority: 1 | 2 | 3) => void;
 };
 
 function Column({
@@ -41,49 +33,37 @@ function Column({
   onMoveRight,
   onAddTask,
 }: ColumnProps) {
-  const [editingTask, setEditingTask] =
-    useState<Task | null>(null);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   const formattedTitle = title.toUpperCase();
   const isTodoColumn = title === "todo";
-  const [isExpanded, setIsExpanded] = useState(
-  () => window.innerWidth > 640
-);
+  const [isExpanded, setIsExpanded] = useState(() => window.innerWidth > 640);
 
-useEffect(() => {
-  function handleResize() {
-    setIsExpanded(window.innerWidth > 640);
-  }
+  useEffect(() => {
+    function handleResize() {
+      setIsExpanded(window.innerWidth > 640);
+    }
 
-  window.addEventListener("resize", handleResize);
+    window.addEventListener("resize", handleResize);
 
-  return () => {
-    window.removeEventListener(
-      "resize",
-      handleResize
-    );
-  };
-}, []);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   return (
     <section
-      className={`kanri-column ${
-        isExpanded ? "kanri-column--expanded" : ""
-      }`}
+      className={`nagare-column ${isExpanded ? "nagare-column--expanded" : ""}`}
       style={{ "--column-color": color } as CSSProperties}
       aria-label={`${formattedTitle} tasks`}
     >
-      <header className="kanri-column__header">
-        <h2 className="kanri-column__title">
-          {formattedTitle}
-        </h2>
+      <header className="nagare-column__header">
+        <h2 className="nagare-column__title">{formattedTitle}</h2>
 
         <button
           type="button"
-          className="kanri-column__toggle"
-          onClick={() =>
-            setIsExpanded((current) => !current)
-          }
+          className="nagare-column__toggle"
+          onClick={() => setIsExpanded((current) => !current)}
           aria-label={
             isExpanded
               ? `Collapse ${formattedTitle}`
@@ -108,7 +88,7 @@ useEffect(() => {
       <AnimatePresence initial={false}>
         {isExpanded && (
           <motion.div
-            className="kanri-column__body-shell"
+            className="nagare-column__body-shell"
             initial={{ height: 0 }}
             animate={{ height: "auto" }}
             exit={{ height: 0 }}
@@ -118,7 +98,7 @@ useEffect(() => {
             }}
           >
             <motion.div
-              className="kanri-column__body"
+              className="nagare-column__body"
               initial={{ opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
@@ -127,16 +107,12 @@ useEffect(() => {
                 ease: "easeOut",
               }}
             >
-              {isTodoColumn &&
-                onAddTask &&
-                !editingTask && (
-                  <TaskComposer  showPriority mode='Task' onAdd={onAddTask} />
-                )}
+              {isTodoColumn && onAddTask && !editingTask && (
+                <TaskComposer showPriority mode="Task" onAdd={onAddTask} />
+              )}
 
               {tasks.length === 0 ? (
-                <p className="kanri-column__empty">
-                  No tasks here yet.
-                </p>
+                <p className="nagare-column__empty">No tasks here yet.</p>
               ) : (
                 <LayoutGroup>
                   <AnimatePresence mode="popLayout">
@@ -148,21 +124,13 @@ useEffect(() => {
                         transition={{
                           layout: {
                             duration: 0.6,
-                            ease: [
-                              0.16,
-                              1,
-                              0.3,
-                              1,
-                            ],
+                            ease: [0.16, 1, 0.3, 1],
                           },
                         }}
                         style={{ overflow: "hidden" }}
                       >
                         {/* Keep edit-mode swap instant */}
-                        <AnimatePresence
-                          initial={false}
-                          mode="wait"
-                        >
+                        <AnimatePresence initial={false} mode="wait">
                           {editingTask?.id === task.id ? (
                             <motion.div
                               key={`editor-${task.id}`}
@@ -175,24 +143,13 @@ useEffect(() => {
                               }}
                             >
                               <TaskComposer
-                                mode='Task'
+                                mode="Task"
                                 showPriority
                                 initialTask={task}
                                 submitLabel="Save"
-                                onCancel={() =>
-                                  setEditingTask(null)
-                                }
-                                onAdd={(
-                                  title,
-                                  description,
-                                  priority,
-                                ) => {
-                                  onEdit?.(
-                                    task,
-                                    title,
-                                    description,
-                                    priority,
-                                  );
+                                onCancel={() => setEditingTask(null)}
+                                onAdd={(title, description, priority) => {
+                                  onEdit?.(task, title, description, priority);
                                   setEditingTask(null);
                                 }}
                               />
@@ -210,16 +167,10 @@ useEffect(() => {
                             >
                               <TaskCard
                                 task={task}
-                                onEdit={() =>
-                                  setEditingTask(task)
-                                }
+                                onEdit={() => setEditingTask(task)}
                                 onDelete={onDelete}
-                                onMoveLeft={
-                                  onMoveLeft
-                                }
-                                onMoveRight={
-                                  onMoveRight
-                                }
+                                onMoveLeft={onMoveLeft}
+                                onMoveRight={onMoveRight}
                               />
                             </motion.div>
                           )}

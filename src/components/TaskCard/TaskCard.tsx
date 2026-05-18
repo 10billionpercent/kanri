@@ -20,44 +20,46 @@ function TaskCard({
   onMoveRight,
 }: TaskProps) {
   const canMoveLeft =
-    task.status === TaskStatuses.Doing ||
-    task.status === TaskStatuses.Done;
+    task.status === TaskStatuses.Doing || task.status === TaskStatuses.Done;
 
   const canMoveRight =
-    task.status === TaskStatuses.Todo ||
-    task.status === TaskStatuses.Doing;
+    task.status === TaskStatuses.Todo || task.status === TaskStatuses.Doing;
 
-  const starCount =
-  priorityOrder.indexOf(task.priority) + 1;
+  const starCount = priorityOrder.indexOf(task.priority) + 1;
 
   const priorityColor =
-  task.status === TaskStatuses.Todo
-    ? "var(--purple-light)"
-    : task.status === TaskStatuses.Doing
-      ? "var(--blue-light)"
-      : "var(--green-light)";
+    task.status === TaskStatuses.Todo
+      ? "var(--purple-light)"
+      : task.status === TaskStatuses.Doing
+        ? "var(--blue-light)"
+        : "var(--green-light)";
 
   return (
-    <article className="kanri-task">
-      <div className="kanri-task__content">
-        <h3 className="kanri-task__title">{task.name}</h3>
+    <article className="nagare-task">
+      <div className="nagare-task__content">
+        <h3 className="nagare-task__title">{task.name}</h3>
 
         <div
-          className="kanri-task__actions"
+          className="nagare-task__actions"
           aria-label={`${task.name} actions`}
         >
           {Array.from({ length: starCount }).map((_, index) => (
-          <Star key={index} size={16} fill="currentColor" style={{ color: priorityColor }}/>
+            <Star
+              key={index}
+              size={16}
+              fill="currentColor"
+              style={{ color: priorityColor }}
+            />
           ))}
           {canMoveLeft && (
             <button
               type="button"
-              className="kanri-task__button kanri-task__button--move"
+              className="nagare-task__button nagare-task__button--move"
               onClick={() => onMoveLeft?.(task)}
               aria-label={`Move ${task.name} left`}
             >
               <Triangle
-                className="kanri-task__triangle--left"
+                className="nagare-task__triangle--left"
                 size={16}
                 fill="currentColor"
               />
@@ -66,7 +68,7 @@ function TaskCard({
 
           <button
             type="button"
-            className="kanri-task__button"
+            className="nagare-task__button"
             onClick={() => onEdit?.(task)}
             aria-label={`Edit ${task.name}`}
           >
@@ -75,7 +77,7 @@ function TaskCard({
 
           <button
             type="button"
-            className="kanri-task__button"
+            className="nagare-task__button"
             onClick={() => onDelete?.(task)}
             aria-label={`Delete ${task.name}`}
           >
@@ -85,12 +87,12 @@ function TaskCard({
           {canMoveRight && (
             <button
               type="button"
-              className="kanri-task__button kanri-task__button--move"
+              className="nagare-task__button nagare-task__button--move"
               onClick={() => onMoveRight?.(task)}
               aria-label={`Move ${task.name} right`}
             >
               <Triangle
-                className="kanri-task__triangle--right"
+                className="nagare-task__triangle--right"
                 size={16}
                 fill="currentColor"
               />
@@ -99,7 +101,7 @@ function TaskCard({
         </div>
 
         {task.description && (
-          <p className="kanri-task__description">{task.description}</p>
+          <p className="nagare-task__description">{task.description}</p>
         )}
       </div>
     </article>
