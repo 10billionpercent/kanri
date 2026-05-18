@@ -7,6 +7,7 @@ import type { Task } from "../../types";
 import TaskCard from "../TaskCard/TaskCard";
 import TaskComposer from "../Composer/Composer";
 import "./Column.css";
+import Pagination from "../Pagination/Pagination";
 
 type ColumnProps = {
   title: "todo" | "doing" | "done";
@@ -39,6 +40,7 @@ function Column({
   const formattedTitle = title.toUpperCase();
   const isTodoColumn = title === "todo";
   const [isExpanded, setIsExpanded] = useState(() => window.innerWidth > 640);
+  const [taskPage, setTaskPage] = useState(1);
 
   const sortedTasks = useMemo(() => {
   return [...tasks].sort((a, b) => {
@@ -56,6 +58,17 @@ function Column({
     );
   });
   }, [tasks]);
+
+  const paginatedTasks = useMemo(() => {
+  const start = (taskPage - 1) * 5
+  const end = start + 5
+  return sortedTasks.slice(start, end)
+}, [sortedTasks, taskPage])
+
+  const totalTaskPages = Math.max(
+  1,
+  Math.ceil(tasks.length / 5)
+)
 
   useEffect(() => {
     function handleResize() {
@@ -77,7 +90,13 @@ function Column({
     >
       <header className="nagare-column__header">
         <h2 className="nagare-column__title">{formattedTitle}</h2>
-
+        <Pagination
+        page={taskPage}
+        totalPages={totalTaskPages}
+        totalItems={tasks.length}
+        itemsPerPage={5}
+        onChange={setTaskPage}
+        />
         <button
           type="button"
           className="nagare-column__toggle"
@@ -134,7 +153,7 @@ function Column({
               ) : (
                 <LayoutGroup>
                   <AnimatePresence mode="popLayout">
-                    {sortedTasks.map((task) => (
+                    {paginatedTasks.map((task) => (
                       <motion.div
                         key={task.id}
                         layout

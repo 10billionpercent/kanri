@@ -1,0 +1,38 @@
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.pagination-button {
+  border-radius: 10px;
+  color: var(--background);
+  cursor: pointer;
+  transition: 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pagination-button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.pagination-label {
+  font-family: var(--body-font);
+  font-size: 1rem;
+  font-weight: 900;
+  color: var(--column-color);
+  min-width: 90px;
+  text-align: center;
+}
+
+.triangle-left {
+  transform: rotate(-90deg);
+}
+
+.triangle-right {
+  transform: rotate(90deg);
+}
