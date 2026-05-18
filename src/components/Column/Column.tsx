@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import { priorityOrder } from "../../types";
 import type { CSSProperties } from "react";
 import { ChevronDown } from "lucide-react";
 import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
@@ -38,6 +39,14 @@ function Column({
   const formattedTitle = title.toUpperCase();
   const isTodoColumn = title === "todo";
   const [isExpanded, setIsExpanded] = useState(() => window.innerWidth > 640);
+
+  const sortedTasks = useMemo(() => {
+  return [...tasks].sort(
+    (a, b) =>
+      priorityOrder.indexOf(b.priority) -
+      priorityOrder.indexOf(a.priority)
+  );
+}, [tasks]);
 
   useEffect(() => {
     function handleResize() {
@@ -116,7 +125,7 @@ function Column({
               ) : (
                 <LayoutGroup>
                   <AnimatePresence mode="popLayout">
-                    {tasks.map((task) => (
+                    {sortedTasks.map((task) => (
                       <motion.div
                         key={task.id}
                         layout
