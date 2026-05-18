@@ -157,7 +157,7 @@ function Signup() {
           <div>
             <div className="brand-row">
               <img
-                src="assets/nagare-logo.png"
+                src="/nagare-logo.png"
                 width="80"
                 height="80"
                 alt="nagare logo"
