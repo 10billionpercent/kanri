@@ -40,7 +40,7 @@ function Signup() {
   const [googleStatus, setGoogleStatus] = useState(() =>
     googleClientId
       ? "Ready to sync with Google"
-      : "Add VITE_GOOGLE_CLIENT_ID to .env",
+      : "Google sign in not available",
   );
 
   const nameInputRef = useRef<HTMLInputElement>(null);
@@ -55,9 +55,9 @@ function Signup() {
     const initializeGoogle = () => {
       window.google?.accounts.id.initialize({
         client_id: googleClientId,
-        callback: (response) => {
-          setGoogleStatus(`Google token received (${response.select_by})`);
-          console.log("Google ID token:", response.credential);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        callback: (_response) => {
+          setGoogleStatus(`Google token received`);
         },
       });
     };
