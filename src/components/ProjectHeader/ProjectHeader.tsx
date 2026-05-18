@@ -364,7 +364,7 @@ async function handleDeleteProject(
             Updated {formatUpdatedAt(p.updatedAt)}
           </span>
         </button>
-        <div className="flex-col gap-2">
+        <div className="flex flex-col gap-1">
           <button  className='project-panel__settings-action'
           onClick={() => {
   setEditingProject(p);
