@@ -70,7 +70,7 @@ function TaskCard({
             onClick={() => onEdit?.(task)}
             aria-label={`Edit ${task.name}`}
           >
-            <Edit3 size={15} />
+            <Edit3 size={16} />
           </button>
 
           <button
@@ -79,7 +79,7 @@ function TaskCard({
             onClick={() => onDelete?.(task)}
             aria-label={`Delete ${task.name}`}
           >
-            <Trash2 size={15} />
+            <Trash2 size={16} />
           </button>
 
           {canMoveRight && (

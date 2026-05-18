@@ -236,6 +236,17 @@
   color: var(--background);
 }
 
+.project-panel__settings-action {
+  padding: 6px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--blue-light) 26%, transparent);
+  border-radius: 6px;
+  color: var(--body);
+  background: color-mix(in srgb, var(--blue-light) 10%, transparent);
+  cursor: pointer;
+}
+
 @media (max-width: 640px) {
   .project-panel-wrapper {
     width: 100%;

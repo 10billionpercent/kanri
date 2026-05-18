@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FolderOpen } from "lucide-react";
+import { FolderOpen, Edit3, Trash2 } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import type { RootState, AppDispatch } from "../../store";
@@ -32,6 +32,8 @@ function ProjectHeader({
   const user = useSelector((state: RootState) => state.user);
   const userName = user?.name || user?.username || "there";
   const currentProject = useSelector((state: RootState) => state.projects.currentProjectId);
+const [editingProject, setEditingProject] =
+  useState<Project | null>(null);
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   const projectPanelRef = useRef<HTMLDivElement>(null);
 
@@ -148,6 +150,52 @@ const visibleProjects = sortedProjects.slice(0, 3);
     await saveProjects([newProject, ...projects]);
   }
 
+  async function handleUpdateProject(
+  title: string,
+  description: string
+) {
+  if (!editingProject) {
+    return;
+  }
+
+  const updatedProject: Project = {
+    ...editingProject,
+    name: title,
+    description:
+      description.trim() || undefined,
+    updatedAt: new Date().toISOString(),
+  };
+
+  dispatch(updateProject(updatedProject));
+
+  const updatedProjects = projects.map(
+    (project) =>
+      project.id === updatedProject.id
+        ? updatedProject
+        : project
+  );
+
+  await saveProjects(updatedProjects);
+}
+
+async function handleDeleteProject(
+  projectToDelete: Project
+) {
+  dispatch(deleteProject(projectToDelete.id));
+
+  const updatedProjects = projects.filter(
+    (project) =>
+      project.id !== projectToDelete.id
+  );
+
+  await saveProjects(updatedProjects);
+
+  if (editingProject?.id === projectToDelete.id) {
+    setEditingProject(null);
+  }
+}
+
+
   return (
     <header className="project-header">
       <h1 className="project-header__greeting">
@@ -184,11 +232,57 @@ const visibleProjects = sortedProjects.slice(0, 3);
 
       <p className="project-header__stat">{getStatText()}</p>
 <div className="mt-1 flex flex-wrap items-end gap-5">
-  <Composer
-    mode="Project"
-    onAdd={handleAddProject}
-    color="var(--blue-light)"
-  />
+<AnimatePresence initial={false} mode="wait">
+  {editingProject ? (
+    <motion.div
+      key={`editor-${editingProject.id}`}
+      layout="position"
+      initial={false}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 1 }}
+      transition={{
+        duration: 0,
+      }}
+    >
+      <Composer
+        mode="Project"
+        initialProject={editingProject}
+        submitLabel="Save"
+        onCancel={() =>
+          setEditingProject(null)
+        }
+        onAdd={(
+          title,
+          description
+        ) => {
+          handleUpdateProject(
+            title,
+            description
+          );
+          setEditingProject(null);
+        }}
+        color="var(--blue-light)"
+      />
+    </motion.div>
+  ) : (
+    <motion.div
+      key="add-project"
+      layout="position"
+      initial={false}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 1 }}
+      transition={{
+        duration: 0,
+      }}
+    >
+      <Composer
+        mode="Project"
+        onAdd={handleAddProject}
+        color="var(--blue-light)"
+      />
+    </motion.div>
+  )}
+</AnimatePresence>
 
   {visibleProjects.map((p) => (
     <button
@@ -239,8 +333,8 @@ const visibleProjects = sortedProjects.slice(0, 3);
       }}
     >
       {sortedProjects.map((p) => (
+        <div key={p.id} className="flex gap-1">
         <button
-          key={p.id}
           type="button"
           className={`project-panel__item ${
             p.id === currentProject
@@ -264,6 +358,22 @@ const visibleProjects = sortedProjects.slice(0, 3);
             Updated {formatUpdatedAt(p.updatedAt)}
           </span>
         </button>
+        <div className="flex-col gap-2">
+          <button  className='project-panel__settings-action'
+          onClick={() => {
+  setEditingProject(p);
+}}>
+            <Edit3 size={16} />
+          </button>
+                    <button className='project-panel__settings-action'
+                    onClick={() => {
+handleDeleteProject(p)
+}
+}>
+            <Trash2 size={16} />
+          </button>
+        </div>
+        </div>
       ))}
     </motion.div>
   )}

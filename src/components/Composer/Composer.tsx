@@ -2,12 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { FolderPlus, FilePlus, Star } from "lucide-react";
-import type { Task } from "../../types";
+import type { Task, Project } from "../../types";
 import { TaskPriorities } from "../../types";
 import "./Composer.css";
 
 type BaseComposerProps = {
   initialTask?: Task;
+  initialProject?: Project;
   submitLabel?: string;
   mode: "Task" | "Project";
   onCancel?: () => void;
@@ -38,6 +39,7 @@ type ComposerProps =
 function Composer({
   onAdd,
   initialTask,
+  initialProject,
   submitLabel = "Add",
   mode,
   onCancel,
@@ -50,17 +52,30 @@ function Composer({
     [TaskPriorities.High]: 3,
   } as const;
 
-  const [isExpanded, setIsExpanded] = useState(
-    initialTask ? true : false
-  );
+  const initialTitleValue =
+  initialTask?.name ??
+  initialProject?.name ??
+  "";
 
-  const [title, setTitle] = useState(
-    initialTask?.name ?? ""
-  );
+const initialDescriptionValue =
+  initialTask?.description ??
+  initialProject?.description ??
+  "";
 
-  const [description, setDescription] = useState(
-    initialTask?.description ?? ""
-  );
+const [isExpanded, setIsExpanded] = useState(
+  Boolean(
+    initialTask ||
+    initialProject
+  )
+);
+
+const [title, setTitle] = useState(
+  initialTitleValue
+);
+
+const [description, setDescription] = useState(
+  initialDescriptionValue
+);
 
   const [priority, setPriority] = useState<1 | 2 | 3>(
     initialTask
@@ -88,11 +103,22 @@ useEffect(() => {
   autoResize(descriptionRef);
 }, [title, description, isExpanded]);
 
-  useEffect(() => {
-    if (isExpanded) {
-      titleRef.current?.focus();
-    }
-  }, [isExpanded]);
+useEffect(() => {
+  if (!isExpanded) {
+    return;
+  }
+
+  const textarea = titleRef.current;
+
+  if (!textarea) {
+    return;
+  }
+
+  textarea.focus();
+
+  const length = textarea.value.length;
+  textarea.setSelectionRange(length, length);
+}, [isExpanded]);
 
   function resetComposer() {
     setTitle("");
@@ -174,8 +200,10 @@ useEffect(() => {
             }}
           >
             <p className="task-composer__mode">
-  {initialTask ? `Editing ${mode}` : `Adding new ${mode}`}
-</p>
+{initialTask ||
+initialProject
+  ? `Editing ${mode}`
+  : `Adding new ${mode}`}</p>
             <textarea
   ref={titleRef}
   value={title}
