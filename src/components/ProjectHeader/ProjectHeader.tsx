@@ -30,6 +30,9 @@ function ProjectHeader({
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const user = useSelector((state: RootState) => state.user);
+  const allProjects = useSelector(
+  (state: RootState) => state.projects.allProjects
+);
   const userName = user?.name || user?.username || "there";
   const currentProject = useSelector((state: RootState) => state.projects.currentProjectId);
 const [editingProject, setEditingProject] =
@@ -136,19 +139,26 @@ const visibleProjects = sortedProjects.slice(0, 3);
   });
 }
 
-    async function handleAddProject(title: string, description: string) {
-    const newProject: Project = {
-      id: crypto.randomUUID(),
-      name: title,
-      description: description || undefined,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-  
-    dispatch(addProject(newProject));
-  
-    await saveProjects([newProject, ...projects]);
-  }
+    async function handleAddProject(
+  title: string,
+  description: string
+) {
+  const newProject: Project = {
+    id: crypto.randomUUID(),
+    name: title,
+    description: description || undefined,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+
+  const updatedProjects = [
+    newProject,
+    ...allProjects,
+  ];
+
+  dispatch(addProject(newProject));
+  await saveProjects(updatedProjects);
+}
 
   async function handleUpdateProject(
   title: string,
@@ -166,35 +176,32 @@ const visibleProjects = sortedProjects.slice(0, 3);
     updatedAt: new Date().toISOString(),
   };
 
-  dispatch(updateProject(updatedProject));
-
-  const updatedProjects = projects.map(
+  const updatedProjects = allProjects.map(
     (project) =>
       project.id === updatedProject.id
         ? updatedProject
         : project
   );
 
+  dispatch(updateProject(updatedProject));
   await saveProjects(updatedProjects);
 }
 
 async function handleDeleteProject(
   projectToDelete: Project
 ) {
-  dispatch(deleteProject(projectToDelete.id));
-
-  const updatedProjects = projects.filter(
+  const updatedProjects = allProjects.filter(
     (project) =>
       project.id !== projectToDelete.id
   );
 
+  dispatch(deleteProject(projectToDelete.id));
   await saveProjects(updatedProjects);
 
   if (editingProject?.id === projectToDelete.id) {
     setEditingProject(null);
   }
 }
-
 
   return (
     <header className="project-header">
