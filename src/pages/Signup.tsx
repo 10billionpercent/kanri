@@ -37,27 +37,32 @@ function Signup() {
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [googleStatus, setGoogleStatus] = useState(() =>
-    googleClientId
-      ? "Ready to sync with Google"
-      : "Google sign in not available",
-  );
 
   const nameInputRef = useRef<HTMLInputElement>(null);
   const usernameInputRef = useRef<HTMLInputElement>(null);
   const passwordInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!googleClientId) {
-      return;
-    }
+    if (!googleClientId) return;
 
     const initializeGoogle = () => {
       window.google?.accounts.id.initialize({
         client_id: googleClientId,
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        callback: (_response) => {
-          setGoogleStatus(`Google token received`);
+        callback: async (response) => {
+          const tokenPayload = response.credential.split('.')[1];
+          const decodedData = JSON.parse(
+            atob(tokenPayload.replace(/-/g, '+').replace(/_/g, '/'))
+          );
+
+          const user = {
+            name: decodedData.name || "Google User", 
+            username: decodedData.email, 
+            authMode: "account" as const,
+          };
+
+          dispatch(setUser(user));
+          await saveUser(user);
+          navigate("/project");
         },
       });
     };
@@ -76,13 +81,12 @@ function Signup() {
     script.async = true;
     script.defer = true;
     script.onload = initializeGoogle;
-    script.onerror = () => setGoogleStatus("Could not load Google sign-in");
+    script.onerror = () => console.error("Could not load Google sign-in script");
     document.head.appendChild(script);
-  }, []);
+  }, [dispatch, navigate]);
 
   const continueLocally = async (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
-
     const trimmedName = name.trim();
 
     if (!trimmedName) {
@@ -97,29 +101,22 @@ function Signup() {
 
     dispatch(setUser(user));
     await saveUser(user);
-
     navigate("/project");
   };
 
   const createSyncAccount = async (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
-
     const trimmedUsername = username.trim();
     const trimmedPassword = password.trim();
 
-    // Focus username first if empty
     if (!trimmedUsername) {
       usernameInputRef.current?.focus();
       return;
     }
-
-    // Then focus password if empty
     if (!trimmedPassword) {
       passwordInputRef.current?.focus();
       return;
     }
-
-    // Optional minimum length check
     if (trimmedPassword.length < 8) {
       passwordInputRef.current?.focus();
       passwordInputRef.current?.select();
@@ -134,39 +131,27 @@ function Signup() {
 
     dispatch(setUser(user));
     await saveUser(user);
-
     navigate("/project");
   };
 
   const signInWithGoogle = () => {
     if (!googleClientId) {
-      setGoogleStatus("Missing Google client ID");
+      console.error("Missing Google client ID");
       return;
     }
-
     window.google?.accounts.id.prompt();
   };
 
   return (
     <main className="signup-shell min-h-svh grid place-items-center p-4 sm:p-6">
-      <section
-        className="signup-panel w-full max-w-6xl"
-        aria-labelledby="signup-title"
-      >
+      <section className="signup-panel w-full max-w-6xl" aria-labelledby="signup-title">
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-0 xl:gap-12 p-6 sm:p-8">
           <div>
             <div className="brand-row">
-              <img
-                src="/nagare-logo.png"
-                width="80"
-                height="80"
-                alt="nagare logo"
-              />
+              <img src="/nagare-logo.png" width="80" height="80" alt="nagare logo" />
             </div>
             <h1>Nagare</h1>
-            <p className="tagline">
-              More than a to-do list. Made for real workflow.
-            </p>
+            <p className="tagline">More than a to-do list. Made for real workflow.</p>
             <p className="signup-copy">Start instantly.</p>
             <form className="signup-form" onSubmit={continueLocally}>
               <label htmlFor="name">What should we call you?</label>
@@ -176,9 +161,7 @@ function Signup() {
                 name="name"
                 type="text"
                 value={name}
-                onChange={(event) => {
-                  setName(event.target.value);
-                }}
+                onChange={(event) => setName(event.target.value)}
                 placeholder="Sankarsana"
                 autoComplete="given-name"
               />
@@ -192,18 +175,14 @@ function Signup() {
             </div>
 
             <form className="signup-form" onSubmit={createSyncAccount}>
-              <label htmlFor="username">
-                Username (only letters and numbers)
-              </label>
+              <label htmlFor="username">Username (only letters and numbers)</label>
               <input
                 ref={usernameInputRef}
                 id="username"
                 name="username"
                 type="text"
                 value={username}
-                onChange={(event) => {
-                  setUsername(event.target.value);
-                }}
+                onChange={(event) => setUsername(event.target.value)}
                 placeholder="sankarsana3012"
                 autoComplete="username"
               />
@@ -214,23 +193,16 @@ function Signup() {
                 name="password"
                 type="password"
                 value={password}
-                onChange={(event) => {
-                  setPassword(event.target.value);
-                }}
+                onChange={(event) => setPassword(event.target.value)}
                 placeholder="Enter a secure password"
               />
               <button type="submit">Create sync account</button>
             </form>
 
-            <button
-              type="button"
-              className="google-button"
-              onClick={signInWithGoogle}
-            >
+            <button type="button" className="google-button" onClick={signInWithGoogle}>
               <img src={googleLogo} alt="" width="20" height="20" />
               <span>Continue with Google</span>
             </button>
-            <p className="auth-status">{googleStatus}</p>
           </div>
         </div>
       </section>
