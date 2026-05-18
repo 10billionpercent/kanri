@@ -185,7 +185,11 @@ function Column({
                             >
                               <TaskCard
                                 task={task}
-                                onEdit={() => setEditingTask(task)}
+                                onEdit={() => {
+                                requestAnimationFrame(() => {
+                                setEditingTask(task);
+                                });
+                                }}                                
                                 onDelete={onDelete}
                                 onMoveLeft={onMoveLeft}
                                 onMoveRight={onMoveRight}
