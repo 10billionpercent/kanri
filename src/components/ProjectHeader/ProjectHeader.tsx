@@ -16,7 +16,6 @@ type ProjectHeaderProps = {
   project: Project;
   tasks: Task[];
   phrase: string;
-  projects: Project[];
   projectProgressMap: Record<string, string>;
 };
 
@@ -24,7 +23,6 @@ function ProjectHeader({
   project,
   tasks,
   phrase,
-  projects,
   projectProgressMap
 }: ProjectHeaderProps) {
   const dispatch = useDispatch<AppDispatch>();
@@ -41,12 +39,12 @@ const [editingProject, setEditingProject] =
   const projectPanelRef = useRef<HTMLDivElement>(null);
 
   const sortedProjects = useMemo(() => {
-  return [...projects].sort(
+  return [...allProjects].sort(
     (a, b) =>
       new Date(b.updatedAt).getTime() -
       new Date(a.updatedAt).getTime()
   );
-}, [projects]);
+}, [allProjects]);
 
 const visibleProjects = sortedProjects.slice(0, 3);
 

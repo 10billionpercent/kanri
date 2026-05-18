@@ -269,7 +269,6 @@ async function handleEdit(
           project={currentProject}
           tasks={visibleTasks}
           phrase="Keep moving."
-          projects={allProjects}
           projectProgressMap={projectProgressMap}
         />
 
