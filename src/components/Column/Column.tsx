@@ -41,12 +41,21 @@ function Column({
   const [isExpanded, setIsExpanded] = useState(() => window.innerWidth > 640);
 
   const sortedTasks = useMemo(() => {
-  return [...tasks].sort(
-    (a, b) =>
+  return [...tasks].sort((a, b) => {
+    const priorityDifference =
       priorityOrder.indexOf(b.priority) -
-      priorityOrder.indexOf(a.priority)
-  );
-}, [tasks]);
+      priorityOrder.indexOf(a.priority);
+
+    if (priorityDifference !== 0) {
+      return priorityDifference;
+    }
+
+    return (
+      new Date(b.updatedAt).getTime() -
+      new Date(a.updatedAt).getTime()
+    );
+  });
+  }, [tasks]);
 
   useEffect(() => {
     function handleResize() {
