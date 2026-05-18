@@ -174,16 +174,15 @@ const visibleProjects = sortedProjects.slice(0, 3);
         </motion.span>
       </h1>
 
-      <p className="project-header__phrase">{phrase}</p>
-
-      <p className="project-header__stat">{getStatText()}</p>
-      <button
+      <p className="project-header__phrase">{phrase}       <button
   type="button"
   className="project-header__logout"
   onClick={handleLogout}
 >
   Log out
-</button>
+</button></p>
+
+      <p className="project-header__stat">{getStatText()}</p>
 <div className="mt-1 flex flex-wrap items-end gap-5">
   <Composer
     mode="Project"
