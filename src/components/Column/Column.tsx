@@ -90,13 +90,13 @@ function Column({
     >
       <header className="nagare-column__header">
         <h2 className="nagare-column__title">{formattedTitle}</h2>
-        <Pagination
+        {isExpanded && <Pagination
         page={taskPage}
         totalPages={totalTaskPages}
         totalItems={tasks.length}
         itemsPerPage={5}
         onChange={setTaskPage}
-        />
+        />}
         <button
           type="button"
           className="nagare-column__toggle"

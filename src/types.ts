@@ -1,3 +1,5 @@
+import type { UserState } from "./reducers/userReducer";
+
 export interface UserCredentials {
   username: string;
   password: string;
@@ -64,7 +66,8 @@ export interface Document {
   updatedAt: string;
 }
 
-export interface UserData {
+export interface AppData {
+  user: UserState | null;
   projects: Project[];
   tasks: Task[];
   docs: Document[];
