@@ -6,7 +6,6 @@ import { setUser } from "../reducers/userReducer";
 import { saveUser } from "../services/db";
 import { register, login } from "../services/api";
 import { syncAfterLogin } from "../syncThunks";
-import googleLogo from "../assets/google-logo.svg";
 import "../App.css";
 
 type GoogleCredentialResponse = {
@@ -165,14 +164,6 @@ function Signup() {
     }
   };
 
-  const signInWithGoogle = () => {
-    if (!googleClientId) {
-      console.error("Missing Google client ID");
-      return;
-    }
-    window.google?.accounts.id.prompt();
-  };
-
   return (
     <main className="signup-shell min-h-svh grid place-items-center p-4 sm:p-6">
       <section
@@ -262,15 +253,6 @@ function Signup() {
                 {isLogin ? "Login" : "Create account"}
               </button>
             </form>
-
-            <button
-              type="button"
-              className="google-button"
-              onClick={signInWithGoogle}
-            >
-              <img src={googleLogo} alt="" width="20" height="20" />
-              <span>Continue with Google</span>
-            </button>
           </div>
         </div>
       </section>
