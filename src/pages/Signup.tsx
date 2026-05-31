@@ -1,4 +1,4 @@
-import { type SyntheticEvent, useEffect, useState, useRef } from "react";
+import { type SyntheticEvent, useState, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import type { AppDispatch } from "../store";
@@ -29,8 +29,6 @@ declare global {
   }
 }
 
-const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID?.trim() ?? "";
-
 function Signup() {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
@@ -45,51 +43,12 @@ function Signup() {
   const usernameInputRef = useRef<HTMLInputElement>(null);
   const passwordInputRef = useRef<HTMLInputElement>(null);
 
-  // Google Sign-In effect
-  useEffect(() => {
-    if (!googleClientId) return;
-
-    const initializeGoogle = () => {
-      window.google?.accounts.id.initialize({
-        client_id: googleClientId,
-        callback: async (response) => {
-          const tokenPayload = response.credential.split(".")[1];
-          const decodedData = JSON.parse(
-            atob(tokenPayload.replace(/-/g, "+").replace(/_/g, "/")),
-          );
-
-          // For Google, we treat as cloud account – you'd need backend Google auth
-          // For now, store locally (extend later to call your backend)
-          const user = {
-            name: decodedData.name || "Google User",
-            username: decodedData.email,
-            authMode: "account" as const,
-          };
-          dispatch(setUser(user));
-          await saveUser(user);
-          navigate("/project");
-        },
-      });
-    };
-
-    const existingScript = document.querySelector<HTMLScriptElement>(
-      'script[src="https://accounts.google.com/gsi/client"]',
-    );
-
-    if (existingScript) {
-      initializeGoogle();
-      return;
-    }
-
-    const script = document.createElement("script");
-    script.src = "https://accounts.google.com/gsi/client";
-    script.async = true;
-    script.defer = true;
-    script.onload = initializeGoogle;
-    script.onerror = () =>
-      console.error("Could not load Google sign-in script");
-    document.head.appendChild(script);
-  }, [dispatch, navigate]);
+  const setErrorWithTimeout = (errorMessage: string) => {
+    setError(errorMessage);
+    setTimeout(() => {
+      setError('')
+    }, 5000)
+  }
 
   const continueLocally = async (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -112,7 +71,7 @@ function Signup() {
 
   const handleSyncAccount = async (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setError("");
+    setErrorWithTimeout("");
     const trimmedUsername = username.trim();
     const trimmedPassword = password.trim();
 
@@ -125,12 +84,11 @@ function Signup() {
       return;
     }
     if (!isLogin && trimmedPassword.length < 8) {
-      setError("Password must be at least 8 characters");
+      setErrorWithTimeout("Password must be at least 8 characters");
       passwordInputRef.current?.focus();
       return;
     }
 
-    console.log("Submitting", { isLogin, trimmedUsername, trimmedPassword });
     try {
       let authResponse;
       if (isLogin) {
@@ -151,16 +109,12 @@ function Signup() {
 
       dispatch(setUser(userState));
       await saveUser(userState);
-
-      // Sync cloud data to local IndexedDB and Redux
       await dispatch(syncAfterLogin()).unwrap();
-
       navigate("/project");
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : "Authentication failed";
-      setError(message);
-      console.error("Sync account error:", err);
+      setErrorWithTimeout(message);
     }
   };
 
@@ -203,27 +157,10 @@ function Signup() {
 
           <div>
             <div className="divider lg:mt-0">
-              <span>{isLogin ? "Login to sync" : "Create sync account"}</span>
+              <span>Or sign up only if you want sync. </span>
             </div>
 
-            <div className="flex gap-2 mb-4">
-              <button
-                type="button"
-                onClick={() => setIsLogin(false)}
-                className={`flex-1 py-1 rounded ${!isLogin ? "bg-purple-600 text-white" : "bg-gray-200"}`}
-              >
-                Sign up
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsLogin(true)}
-                className={`flex-1 py-1 rounded ${isLogin ? "bg-purple-600 text-white" : "bg-gray-200"}`}
-              >
-                Login
-              </button>
-            </div>
-
-            {error && <div className="text-red-500 text-sm mb-2">{error}</div>}
+            {error && <div className= "error-message">{error}</div>}
 
             <form className="signup-form" onSubmit={handleSyncAccount}>
               <label htmlFor="username">Username</label>
@@ -250,9 +187,35 @@ function Signup() {
                 placeholder="Enter your password"
               />
               <button type="submit">
-                {isLogin ? "Login" : "Create account"}
+                {isLogin ? "Log in" : "Create account"}
               </button>
             </form>
+
+            <div className="text-center mt-4 text-sm">
+              {isLogin ? (
+                <p className="switch-link">
+                  Don't have an account?{" "}
+                  <button
+                    type="button"
+                    onClick={() => setIsLogin(false)}
+                    className="switch-link-button"
+                  >
+                    Sign up
+                  </button>
+                </p>
+              ) : (
+                <p className="switch-link">
+                  Already have an account?{" "}
+                  <button
+                    type="button"
+                    onClick={() => setIsLogin(true)}
+                    className="switch-link-button"
+                  >
+                    Log in
+                  </button>
+                </p>
+              )}
+            </div>
           </div>
         </div>
       </section>

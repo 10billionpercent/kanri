@@ -4,7 +4,7 @@
 }
 
 .signup-shell::before {
-  content: '';
+  content: "";
   position: fixed;
   inset: 0;
   width: 200%;
@@ -121,12 +121,7 @@
 .signup-form input:focus {
   outline: none;
   border-color: var(--blue-light);
-  box-shadow: 0 0 0 3px
-    color-mix(
-      in srgb,
-      var(--blue-light) 18%,
-      transparent
-    );
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--blue-light) 18%, transparent);
 }
 
 .signup-form button,
@@ -161,7 +156,7 @@
 
 .divider::before,
 .divider::after {
-  content: '';
+  content: "";
   height: 1px;
   flex: 1;
   background: var(--border);
@@ -182,7 +177,7 @@
 }
 
 .google-button::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   background: conic-gradient(
@@ -198,7 +193,7 @@
 }
 
 .google-button::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 2px;
   background: var(--background);
@@ -213,7 +208,7 @@
 }
 
 @property --google-border-angle {
-  syntax: '<angle>';
+  syntax: "<angle>";
   inherits: false;
   initial-value: 0deg;
 }
@@ -236,4 +231,26 @@
   .signup-panel h1 {
     font-size: 34px;
   }
+}
+
+.switch-link {
+  color: var(--body);
+  text-align: left;
+  margin-left: 2px;
+  font-size: 16px;
+}
+
+.switch-link-button {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.error-message {
+  color: var(--error);
+  font-family: var(--body-font);
+  padding: 16px;
+  margin-bottom: 12px;
+  border: 1px solid var(--error);
+  border-radius: 8px;
+  font-weight: bold;
 }
