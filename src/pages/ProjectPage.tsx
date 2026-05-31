@@ -4,7 +4,7 @@ import Column from "../components/Column/Column";
 import ProjectHeader from "../components/ProjectHeader/ProjectHeader";
 import { TaskPriorities, TaskStatuses } from "../types";
 import type { Project, Task } from "../types";
-import { loadTasks, saveProjects, saveTasks } from "../db";
+import { loadTasks, saveProjects, saveTasks } from "../services/db";
 import type { RootState, AppDispatch } from "../store";
 import {
   addTask,

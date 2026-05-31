@@ -1,7 +1,7 @@
 import { openDB } from "idb";
-import type { UserState } from "./reducers/userReducer";
-import type { AppData, Project, Task, Document } from "./types";
-import { syncToGoogleDriveIfConnected } from "./googleDriveAutoSync";
+import type { UserState } from "../reducers/userReducer";
+import type { AppData, Project, Task, Document } from "../types";
+import { syncToGoogleDriveIfConnected } from "../googleDriveAutoSync";
 
 const DB_NAME = "nagare";
 const DB_VERSION = 1;
@@ -33,7 +33,7 @@ function getDefaultData(): AppData {
 
 export async function saveUser(
   user: UserState,
-  options?: { skipSync?: boolean }
+  options?: { skipSync?: boolean },
 ): Promise<void> {
   const db = await dbPromise;
   await db.put(STORE_NAME, user, USER_KEY);
@@ -48,9 +48,9 @@ export async function loadUser(): Promise<UserState | null> {
   return (await db.get(STORE_NAME, USER_KEY)) ?? null;
 }
 
-export async function clearUser(
-  options?: { skipSync?: boolean }
-): Promise<void> {
+export async function clearUser(options?: {
+  skipSync?: boolean;
+}): Promise<void> {
   const db = await dbPromise;
   await db.delete(STORE_NAME, USER_KEY);
 
@@ -63,7 +63,7 @@ export async function clearUser(
 
 export async function saveTasks(
   tasks: Task[],
-  options?: { skipSync?: boolean }
+  options?: { skipSync?: boolean },
 ): Promise<void> {
   const db = await dbPromise;
   await db.put(STORE_NAME, tasks, TASKS_KEY);
@@ -78,9 +78,9 @@ export async function loadTasks(): Promise<Task[]> {
   return (await db.get(STORE_NAME, TASKS_KEY)) ?? [];
 }
 
-export async function clearTasks(
-  options?: { skipSync?: boolean }
-): Promise<void> {
+export async function clearTasks(options?: {
+  skipSync?: boolean;
+}): Promise<void> {
   const db = await dbPromise;
   await db.delete(STORE_NAME, TASKS_KEY);
 
@@ -93,7 +93,7 @@ export async function clearTasks(
 
 export async function saveProjects(
   projects: Project[],
-  options?: { skipSync?: boolean }
+  options?: { skipSync?: boolean },
 ): Promise<void> {
   const db = await dbPromise;
   await db.put(STORE_NAME, projects, PROJECTS_KEY);
@@ -108,9 +108,9 @@ export async function loadProjects(): Promise<Project[]> {
   return (await db.get(STORE_NAME, PROJECTS_KEY)) ?? [];
 }
 
-export async function clearProjects(
-  options?: { skipSync?: boolean }
-): Promise<void> {
+export async function clearProjects(options?: {
+  skipSync?: boolean;
+}): Promise<void> {
   const db = await dbPromise;
   await db.delete(STORE_NAME, PROJECTS_KEY);
 
@@ -123,7 +123,7 @@ export async function clearProjects(
 
 export async function saveDocs(
   docs: Document[],
-  options?: { skipSync?: boolean }
+  options?: { skipSync?: boolean },
 ): Promise<void> {
   const db = await dbPromise;
   await db.put(STORE_NAME, docs, DOCS_KEY);
@@ -138,9 +138,9 @@ export async function loadDocs(): Promise<Document[]> {
   return (await db.get(STORE_NAME, DOCS_KEY)) ?? [];
 }
 
-export async function clearDocs(
-  options?: { skipSync?: boolean }
-): Promise<void> {
+export async function clearDocs(options?: {
+  skipSync?: boolean;
+}): Promise<void> {
   const db = await dbPromise;
   await db.delete(STORE_NAME, DOCS_KEY);
 
@@ -170,7 +170,7 @@ export async function loadAppData(): Promise<AppData> {
 
 export async function saveAppData(
   data: AppData,
-  options?: { skipSync?: boolean }
+  options?: { skipSync?: boolean },
 ): Promise<void> {
   const db = await dbPromise;
 
@@ -188,9 +188,9 @@ export async function saveAppData(
 
 /* ---------------- CLEAR ALL ---------------- */
 
-export async function clearAppData(
-  options?: { skipSync?: boolean }
-): Promise<void> {
+export async function clearAppData(options?: {
+  skipSync?: boolean;
+}): Promise<void> {
   const db = await dbPromise;
 
   await Promise.all([

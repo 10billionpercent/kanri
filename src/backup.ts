@@ -1,4 +1,4 @@
-import { loadAppData, saveAppData } from "./db";
+import { loadAppData, saveAppData } from "./services/db";
 import type { AppData } from "./types";
 
 export const BACKUP_FILE_NAME = "nagare-backup.json";
@@ -16,7 +16,7 @@ function mergeById<
     id: string;
     updatedAt?: string;
     lastModified?: string;
-  }
+  },
 >(localItems: T[], incomingItems: T[]): T[] {
   const map = new Map<string, T>();
 
@@ -40,24 +40,12 @@ function mergeById<
   return Array.from(map.values());
 }
 
-function mergeAppData(
-  localData: AppData,
-  incomingData: AppData
-): AppData {
+function mergeAppData(localData: AppData, incomingData: AppData): AppData {
   return {
     user: incomingData.user ?? localData.user,
-    projects: mergeById(
-      localData.projects ?? [],
-      incomingData.projects ?? []
-    ),
-    tasks: mergeById(
-      localData.tasks ?? [],
-      incomingData.tasks ?? []
-    ),
-    docs: mergeById(
-      localData.docs ?? [],
-      incomingData.docs ?? []
-    ),
+    projects: mergeById(localData.projects ?? [], incomingData.projects ?? []),
+    tasks: mergeById(localData.tasks ?? [], incomingData.tasks ?? []),
+    docs: mergeById(localData.docs ?? [], incomingData.docs ?? []),
   };
 }
 
@@ -71,13 +59,11 @@ export async function exportAppData(): Promise<string> {
       version: 1,
     },
     null,
-    2
+    2,
   );
 }
 
-export async function importAppData(
-  json: string
-): Promise<void> {
+export async function importAppData(json: string): Promise<void> {
   const incoming = JSON.parse(json) as Partial<AppData>;
   const local = await loadAppData();
 
@@ -108,9 +94,7 @@ export async function downloadBackupFile(): Promise<void> {
   URL.revokeObjectURL(url);
 }
 
-export async function restoreBackupFile(
-  file: File
-): Promise<void> {
+export async function restoreBackupFile(file: File): Promise<void> {
   const json = await file.text();
   await importAppData(json);
 }

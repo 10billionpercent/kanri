@@ -3,7 +3,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState, AppDispatch } from "./store";
 import { setUser } from "./reducers/userReducer";
-import { loadUser } from "./db";
+import { loadUser } from "./services/db";
 
 import Signup from "./pages/Signup";
 import ProjectPage from "./pages/ProjectPage";
