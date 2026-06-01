@@ -39,48 +39,45 @@ function Column({
 
   const formattedTitle = title.toUpperCase();
   const isTodoColumn = title === "todo";
-  const [isExpanded, setIsExpanded] = useState(() => window.innerWidth > 640);
+
+  const getDefaultExpanded = () => window.innerWidth > 640;
+  const [isExpanded, setIsExpanded] = useState(getDefaultExpanded);
+
   const [taskPage, setTaskPage] = useState(1);
 
   const sortedTasks = useMemo(() => {
-  return [...tasks].sort((a, b) => {
-    const priorityDifference =
-      priorityOrder.indexOf(b.priority) -
-      priorityOrder.indexOf(a.priority);
-
-    if (priorityDifference !== 0) {
-      return priorityDifference;
-    }
-
-    return (
-      new Date(b.updatedAt).getTime() -
-      new Date(a.updatedAt).getTime()
-    );
-  });
+    return [...tasks].sort((a, b) => {
+      const priorityDifference =
+        priorityOrder.indexOf(b.priority) - priorityOrder.indexOf(a.priority);
+      if (priorityDifference !== 0) return priorityDifference;
+      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+    });
   }, [tasks]);
 
   const paginatedTasks = useMemo(() => {
-  const start = (taskPage - 1) * 5
-  const end = start + 5
-  return sortedTasks.slice(start, end)
-}, [sortedTasks, taskPage])
+    const start = (taskPage - 1) * 5;
+    const end = start + 5;
+    return sortedTasks.slice(start, end);
+  }, [sortedTasks, taskPage]);
 
-  const totalTaskPages = Math.max(
-  1,
-  Math.ceil(tasks.length / 5)
-)
+  const totalTaskPages = Math.max(1, Math.ceil(tasks.length / 5));
 
   useEffect(() => {
     function handleResize() {
-      setIsExpanded(window.innerWidth > 640);
+      setIsExpanded(getDefaultExpanded());
     }
-
     window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  const handleEditTask = (task: Task) => {
+    if (window.innerWidth <= 640) {
+      setIsExpanded(true);
+    }
+    requestAnimationFrame(() => {
+      setEditingTask(task);
+    });
+  };
 
   return (
     <section
@@ -90,13 +87,15 @@ function Column({
     >
       <header className="nagare-column__header">
         <h2 className="nagare-column__title">{formattedTitle}</h2>
-        {isExpanded && <Pagination
-        page={taskPage}
-        totalPages={totalTaskPages}
-        totalItems={tasks.length}
-        itemsPerPage={5}
-        onChange={setTaskPage}
-        />}
+        {isExpanded && (
+          <Pagination
+            page={taskPage}
+            totalPages={totalTaskPages}
+            totalItems={tasks.length}
+            itemsPerPage={5}
+            onChange={setTaskPage}
+          />
+        )}
         <button
           type="button"
           className="nagare-column__toggle"
@@ -109,13 +108,8 @@ function Column({
           aria-expanded={isExpanded}
         >
           <motion.span
-            animate={{
-              rotate: isExpanded ? 180 : 0,
-            }}
-            transition={{
-              duration: 0.4,
-              ease: [0.22, 1, 0.36, 1],
-            }}
+            animate={{ rotate: isExpanded ? 180 : 0 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
           >
             <ChevronDown size={18} />
           </motion.span>
@@ -129,20 +123,14 @@ function Column({
             initial={{ height: 0 }}
             animate={{ height: "auto" }}
             exit={{ height: 0 }}
-            transition={{
-              duration: 0.4,
-              ease: [0.16, 1, 0.3, 1],
-            }}
+            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
           >
             <motion.div
               className="nagare-column__body"
               initial={{ opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
-              transition={{
-                duration: 0.4,
-                ease: "easeOut",
-              }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
             >
               {isTodoColumn && onAddTask && !editingTask && (
                 <TaskComposer showPriority mode="Task" onAdd={onAddTask} />
@@ -159,14 +147,10 @@ function Column({
                         layout
                         layoutId={task.id}
                         transition={{
-                          layout: {
-                            duration: 0.6,
-                            ease: [0.16, 1, 0.3, 1],
-                          },
+                          layout: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
                         }}
                         style={{ overflow: "hidden" }}
                       >
-                        {/* Keep edit-mode swap instant */}
                         <AnimatePresence initial={false} mode="wait">
                           {editingTask?.id === task.id ? (
                             <motion.div
@@ -175,9 +159,7 @@ function Column({
                               initial={false}
                               animate={{ opacity: 1 }}
                               exit={{ opacity: 1 }}
-                              transition={{
-                                duration: 0,
-                              }}
+                              transition={{ duration: 0 }}
                             >
                               <TaskComposer
                                 mode="Task"
@@ -198,17 +180,11 @@ function Column({
                               initial={false}
                               animate={{ opacity: 1 }}
                               exit={{ opacity: 1 }}
-                              transition={{
-                                duration: 0,
-                              }}
+                              transition={{ duration: 0 }}
                             >
                               <TaskCard
                                 task={task}
-                                onEdit={() => {
-                                requestAnimationFrame(() => {
-                                setEditingTask(task);
-                                });
-                                }}                                
+                                onEdit={() => handleEditTask(task)}
                                 onDelete={onDelete}
                                 onMoveLeft={onMoveLeft}
                                 onMoveRight={onMoveRight}
