@@ -6,7 +6,7 @@ import { setUser } from "./reducers/userReducer";
 import { loadUser } from "./services/db";
 
 import Signup from "./pages/Signup";
-import ProjectPage from "./pages/ProjectPage"; //lol
+import ProjectPage from "./pages/ProjectPage"; 
 
 function App() {
   const user = useSelector((state: RootState) => state.user);
