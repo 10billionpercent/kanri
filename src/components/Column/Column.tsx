@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { priorityOrder } from "../../types";
 import type { CSSProperties } from "react";
 import { ChevronDown } from "lucide-react";
@@ -35,32 +35,42 @@ function Column({
   onMoveRight,
   onAddTask,
 }: ColumnProps) {
-  const [editingTask, setEditingTask] = useState<Task | null>(null);
-
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const formattedTitle = title.toUpperCase();
   const isTodoColumn = title === "todo";
 
   const getDefaultExpanded = () => window.innerWidth > 640;
   const [isExpanded, setIsExpanded] = useState(getDefaultExpanded);
-
   const [taskPage, setTaskPage] = useState(1);
 
   const sortedTasks = useMemo(() => {
     return [...tasks].sort((a, b) => {
-      const priorityDifference =
+      const priorityDiff =
         priorityOrder.indexOf(b.priority) - priorityOrder.indexOf(a.priority);
-      if (priorityDifference !== 0) return priorityDifference;
+      if (priorityDiff !== 0) return priorityDiff;
       return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
     });
   }, [tasks]);
 
-  const paginatedTasks = useMemo(() => {
-    const start = (taskPage - 1) * 5;
-    const end = start + 5;
-    return sortedTasks.slice(start, end);
-  }, [sortedTasks, taskPage]);
-
   const totalTaskPages = Math.max(1, Math.ceil(tasks.length / 5));
+
+  // Clamp page number to valid range
+  const safePage = Math.min(taskPage, totalTaskPages);
+  const paginatedTasks = useMemo(() => {
+    const start = (safePage - 1) * 5;
+    return sortedTasks.slice(start, start + 5);
+  }, [sortedTasks, safePage]);
+
+  // If safePage changed because total pages decreased, update state (no effect, just in the render)
+  // But we avoid setting state during render. Instead, we can let Pagination handle it.
+  // However, to keep state in sync, we can optionally update inside a useEffect without lint violation?
+  // Actually the better way: when the user clicks pagination, we always set within bounds.
+  // We'll just use safePage for display, and when changing page we clamp.
+
+  const handlePageChange = (page: number) => {
+    const clamped = Math.min(page, totalTaskPages);
+    setTaskPage(clamped);
+  };
 
   useEffect(() => {
     function handleResize() {
@@ -70,14 +80,37 @@ function Column({
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const handleEditTask = (task: Task) => {
+  const handleEditTask = useCallback((task: Task) => {
     if (window.innerWidth <= 640) {
       setIsExpanded(true);
     }
     requestAnimationFrame(() => {
-      setEditingTask(task);
+      setEditingTaskId(task.id);
     });
-  };
+  }, []);
+
+  const handleCancelEdit = useCallback(() => {
+    setEditingTaskId(null);
+  }, []);
+
+  const handleSaveEdit = useCallback(
+    (task: Task, title: string, description: string, priority: 1 | 2 | 3) => {
+      onEdit?.(task, title, description, priority);
+      setEditingTaskId(null);
+    },
+    [onEdit],
+  );
+
+  const handleAddTask = useCallback(
+    (title: string, description: string, priority: 1 | 2 | 3) => {
+      onAddTask?.(title, description, priority);
+    },
+    [onAddTask],
+  );
+
+  const editingTask = editingTaskId
+    ? tasks.find((t) => t.id === editingTaskId)
+    : null;
 
   return (
     <section
@@ -89,17 +122,17 @@ function Column({
         <h2 className="nagare-column__title">{formattedTitle}</h2>
         {isExpanded && (
           <Pagination
-            page={taskPage}
+            page={safePage}
             totalPages={totalTaskPages}
             totalItems={tasks.length}
             itemsPerPage={5}
-            onChange={setTaskPage}
+            onChange={handlePageChange}
           />
         )}
         <button
           type="button"
           className="nagare-column__toggle"
-          onClick={() => setIsExpanded((current) => !current)}
+          onClick={() => setIsExpanded((prev) => !prev)}
           aria-label={
             isExpanded
               ? `Collapse ${formattedTitle}`
@@ -132,10 +165,34 @@ function Column({
               exit={{ opacity: 0, y: -4 }}
               transition={{ duration: 0.4, ease: "easeOut" }}
             >
+              {/* Add Task Composer – placed at the top */}
               {isTodoColumn && onAddTask && !editingTask && (
-                <TaskComposer showPriority mode="Task" onAdd={onAddTask} />
+                <div className="nagare-column__add-composer">
+                  <TaskComposer
+                    showPriority
+                    mode="Task"
+                    onAdd={handleAddTask}
+                  />
+                </div>
               )}
 
+              {/* Edit Composer – shown when a task is being edited */}
+              {editingTask && (
+                <div className="nagare-column__edit-composer">
+                  <TaskComposer
+                    mode="Task"
+                    showPriority
+                    initialTask={editingTask}
+                    submitLabel="Save"
+                    onCancel={handleCancelEdit}
+                    onAdd={(title, description, priority) =>
+                      handleSaveEdit(editingTask, title, description, priority)
+                    }
+                  />
+                </div>
+              )}
+
+              {/* Task list */}
               {tasks.length === 0 ? (
                 <p className="nagare-column__empty">No tasks here yet.</p>
               ) : (
@@ -151,47 +208,15 @@ function Column({
                         }}
                         style={{ overflow: "hidden" }}
                       >
-                        <AnimatePresence initial={false} mode="wait">
-                          {editingTask?.id === task.id ? (
-                            <motion.div
-                              key={`editor-${task.id}`}
-                              layout="position"
-                              initial={false}
-                              animate={{ opacity: 1 }}
-                              exit={{ opacity: 1 }}
-                              transition={{ duration: 0 }}
-                            >
-                              <TaskComposer
-                                mode="Task"
-                                showPriority
-                                initialTask={task}
-                                submitLabel="Save"
-                                onCancel={() => setEditingTask(null)}
-                                onAdd={(title, description, priority) => {
-                                  onEdit?.(task, title, description, priority);
-                                  setEditingTask(null);
-                                }}
-                              />
-                            </motion.div>
-                          ) : (
-                            <motion.div
-                              key={`card-${task.id}`}
-                              layout="position"
-                              initial={false}
-                              animate={{ opacity: 1 }}
-                              exit={{ opacity: 1 }}
-                              transition={{ duration: 0 }}
-                            >
-                              <TaskCard
-                                task={task}
-                                onEdit={() => handleEditTask(task)}
-                                onDelete={onDelete}
-                                onMoveLeft={onMoveLeft}
-                                onMoveRight={onMoveRight}
-                              />
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
+                        {editingTaskId !== task.id && (
+                          <TaskCard
+                            task={task}
+                            onEdit={() => handleEditTask(task)}
+                            onDelete={onDelete}
+                            onMoveLeft={onMoveLeft}
+                            onMoveRight={onMoveRight}
+                          />
+                        )}
                       </motion.div>
                     ))}
                   </AnimatePresence>

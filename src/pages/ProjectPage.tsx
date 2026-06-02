@@ -3,201 +3,104 @@ import { useDispatch, useSelector } from "react-redux";
 import Column from "../components/Column/Column";
 import ProjectHeader from "../components/ProjectHeader/ProjectHeader";
 import { TaskPriorities, TaskStatuses } from "../types";
-import type { Project, Task } from "../types";
-import { loadTasks, saveProjects, saveTasks } from "../services/db";
+import type { Task } from "../types";
 import type { RootState, AppDispatch } from "../store";
 import {
-  addTask,
-  deleteTask,
-  setTasks,
-  updateTask,
+  loadTasks,
+  addTaskThunk,
+  updateTaskThunk,
+  deleteTaskThunk,
 } from "../reducers/taskReducer";
-import { updateProject } from "../reducers/projectReducer";
-
-const dummyProject: Project = {
-  id: "project-nagare",
-  name: "dummy project",
-  description: "The main nagare application project.",
-  createdAt: "2026-05-09T08:00:00.000Z",
-  updatedAt: "2026-05-09T08:00:00.000Z",
-};
-
-const dummyTasks: Task[] = [
-  {
-    id: "task-1",
-    projectID: "project-nagare",
-    name: "Shape the signup flow",
-    description: "Local-first entry with optional sync.",
-    priority: TaskPriorities.High,
-    status: TaskStatuses.Todo,
-    createdAt: "2026-05-09T09:00:00.000Z",
-    updatedAt: "2026-05-09T09:00:00.000Z",
-  },
-  {
-    id: "task-2",
-    projectID: "project-nagare",
-    name: "Test column collapse behavior",
-    priority: TaskPriorities.Medium,
-    status: TaskStatuses.Todo,
-    createdAt: "2026-05-09T09:10:00.000Z",
-    updatedAt: "2026-05-09T09:10:00.000Z",
-  },
-  {
-    id: "task-3",
-    projectID: "project-nagare",
-    name: "Create reusable Column component",
-    description: "Header, task count, color prop, and expand/collapse.",
-    priority: TaskPriorities.High,
-    status: TaskStatuses.Doing,
-    createdAt: "2026-05-09T09:20:00.000Z",
-    updatedAt: "2026-05-09T09:20:00.000Z",
-  },
-  {
-    id: "task-4",
-    projectID: "project-nagare",
-    name: "Add React Router",
-    priority: TaskPriorities.Low,
-    status: TaskStatuses.Done,
-    createdAt: "2026-05-09T09:30:00.000Z",
-    updatedAt: "2026-05-09T09:30:00.000Z",
-  },
-];
+import { loadProjects, updateProjectThunk } from "../reducers/projectReducer";
 
 function ProjectPage() {
-  const userTasks = useSelector((state: RootState) => state.tasks);
-  const userProjects = useSelector(
+  const dispatch = useDispatch<AppDispatch>();
+
+  const tasks = useSelector((state: RootState) => state.tasks);
+  const projects = useSelector(
     (state: RootState) => state.projects.allProjects,
   );
   const currentProjectId = useSelector(
     (state: RootState) => state.projects.currentProjectId,
   );
-  const dispatch = useDispatch<AppDispatch>();
+  const user = useSelector((state: RootState) => state.user);
 
-  const hasDummyProject = userProjects.some(
-    (project) => project.id === dummyProject.id,
-  );
+  // Load data from backend if logged in
+  useEffect(() => {
+    if (user?.authMode === "account") {
+      dispatch(loadProjects());
+      dispatch(loadTasks()); // now takes no arguments
+    }
+  }, [user, dispatch]);
 
-  const allProjects = hasDummyProject
-    ? userProjects
-    : [dummyProject, ...userProjects];
-
+  // Find current project
   const currentProject =
-    allProjects.find((project) => project.id === currentProjectId) ??
-    dummyProject;
+    projects.find((p) => p.id === currentProjectId) ?? projects[0] ?? null;
 
-  const visibleTasks =
-    currentProject.id === dummyProject.id
-      ? dummyTasks
-      : userTasks.filter((task) => task.projectID === currentProject.id);
+  // Filter tasks for current project
+  const visibleTasks = currentProject
+    ? tasks.filter((task) => task.projectID === currentProject.id)
+    : [];
 
+  // Compute progress for header
   const projectProgressMap: Record<string, string> = {};
-
-  for (const project of allProjects) {
-    const projectTasks =
-      project.id === dummyProject.id
-        ? dummyTasks
-        : userTasks.filter((task) => task.projectID === project.id);
-
+  for (const project of projects) {
+    const projectTasks = tasks.filter((t) => t.projectID === project.id);
     const doingCount = projectTasks.filter(
-      (task) => task.status === TaskStatuses.Doing,
+      (t) => t.status === TaskStatuses.Doing,
     ).length;
-
     projectProgressMap[project.id] =
       `${doingCount}/${projectTasks.length} in progress`;
   }
-
-  useEffect(() => {
-    async function initializeTasks() {
-      const savedTasks = await loadTasks();
-
-      if (savedTasks.length > 0) {
-        dispatch(setTasks(savedTasks));
-      } else {
-        dispatch(setTasks(dummyTasks));
-        await saveTasks(dummyTasks);
-      }
-    }
-
-    initializeTasks();
-  }, [dispatch]);
 
   function getTasksByStatus(status: Task["status"]) {
     return visibleTasks.filter((task) => task.status === status);
   }
 
+  // Update current project's updatedAt timestamp
   async function touchCurrentProject() {
-    if (currentProject.id === dummyProject.id) {
-      return;
-    }
-
-    const updatedProject: Project = {
+    if (!currentProject) return;
+    const updatedProject = {
       ...currentProject,
       updatedAt: new Date().toISOString(),
     };
-
-    dispatch(updateProject(updatedProject));
-
-    const updatedProjects = allProjects
-      .filter((project) => project.id !== dummyProject.id)
-      .map((project) =>
-        project.id === updatedProject.id ? updatedProject : project,
-      );
-
-    await saveProjects(updatedProjects);
+    await dispatch(updateProjectThunk(updatedProject)).unwrap();
   }
 
   async function handleMoveLeft(taskToMove: Task) {
     let newStatus = taskToMove.status;
-
     if (taskToMove.status === TaskStatuses.Doing) {
       newStatus = TaskStatuses.Todo;
     } else if (taskToMove.status === TaskStatuses.Done) {
       newStatus = TaskStatuses.Doing;
     }
-
-    const updatedTask: Task = {
+    const updatedTask = {
       ...taskToMove,
       status: newStatus,
       updatedAt: new Date().toISOString(),
     };
-
-    dispatch(updateTask(updatedTask));
-
-    const updatedTasks = visibleTasks.map((task) =>
-      task.id === updatedTask.id ? updatedTask : task,
-    );
-
-    saveTasks(updatedTasks);
+    await dispatch(updateTaskThunk(updatedTask)).unwrap();
     await touchCurrentProject();
   }
 
   async function handleMoveRight(taskToMove: Task) {
     let newStatus = taskToMove.status;
-
     if (taskToMove.status === TaskStatuses.Todo) {
       newStatus = TaskStatuses.Doing;
     } else if (taskToMove.status === TaskStatuses.Doing) {
       newStatus = TaskStatuses.Done;
     }
-
-    const updatedTask: Task = {
+    const updatedTask = {
       ...taskToMove,
       status: newStatus,
       updatedAt: new Date().toISOString(),
     };
-
-    dispatch(updateTask(updatedTask));
-
-    const updatedTasks = visibleTasks.map((task) =>
-      task.id === updatedTask.id ? updatedTask : task,
-    );
-
-    saveTasks(updatedTasks);
+    await dispatch(updateTaskThunk(updatedTask)).unwrap();
     await touchCurrentProject();
   }
 
   async function handleDelete(taskToDelete: Task) {
-    dispatch(deleteTask(taskToDelete.id));
+    await dispatch(deleteTaskThunk(taskToDelete.id)).unwrap();
     await touchCurrentProject();
   }
 
@@ -211,23 +114,15 @@ function ProjectPage() {
       1: TaskPriorities.Low,
       2: TaskPriorities.Medium,
       3: TaskPriorities.High,
-    } as const;
-
-    const updatedTask: Task = {
+    };
+    const updatedTask = {
       ...taskToEdit,
       name: title,
       description: description || undefined,
-      priority: priorityMap[priority],
+      priority: priorityMap[priority as 1 | 2 | 3],
       updatedAt: new Date().toISOString(),
     };
-
-    dispatch(updateTask(updatedTask));
-
-    const updatedTasks = visibleTasks.map((task) =>
-      task.id === updatedTask.id ? updatedTask : task,
-    );
-
-    await saveTasks(updatedTasks);
+    await dispatch(updateTaskThunk(updatedTask)).unwrap();
     await touchCurrentProject();
   }
 
@@ -236,34 +131,31 @@ function ProjectPage() {
     description: string,
     priority: 1 | 2 | 3,
   ) {
+    if (!currentProject) return;
     const priorityMap = {
       1: TaskPriorities.Low,
       2: TaskPriorities.Medium,
       3: TaskPriorities.High,
-    } as const;
-    if (currentProject.id === dummyProject.id) {
-      return;
-    }
-
-    if (!currentProjectId) {
-      return null;
-    }
-
-    const newTask: Task = {
-      id: crypto.randomUUID(),
-      projectID: currentProjectId,
+    };
+    const newTask = {
+      projectID: currentProject.id,
       name: title,
       description: description || undefined,
-      priority: priorityMap[priority],
+      priority: priorityMap[priority as 1 | 2 | 3],
       status: TaskStatuses.Todo,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
     };
-
-    dispatch(addTask(newTask));
-
-    await saveTasks([newTask, ...visibleTasks]);
+    await dispatch(addTaskThunk(newTask)).unwrap();
     await touchCurrentProject();
+  }
+
+  if (!currentProject && user?.authMode === "account") {
+    return <div className="p-8 text-center">Loading projects...</div>;
+  }
+
+  if (!currentProject) {
+    return (
+      <div className="p-8 text-center">No project selected. Create one?</div>
+    );
   }
 
   return (
@@ -287,7 +179,6 @@ function ProjectPage() {
             onMoveRight={handleMoveRight}
             onAddTask={handleAddTask}
           />
-
           <Column
             title="doing"
             color="var(--blue-light)"
@@ -297,7 +188,6 @@ function ProjectPage() {
             onMoveLeft={handleMoveLeft}
             onMoveRight={handleMoveRight}
           />
-
           <Column
             title="done"
             color="var(--green-light)"

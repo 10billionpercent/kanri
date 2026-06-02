@@ -3,9 +3,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import type { AppDispatch } from "../store";
 import { setUser } from "../reducers/userReducer";
-import { saveUser } from "../services/db";
 import { register, login } from "../services/api";
-import { syncAfterLogin } from "../syncThunks";
 import "../App.css";
 
 type GoogleCredentialResponse = {
@@ -45,15 +43,12 @@ function Signup() {
 
   const setErrorWithTimeout = (errorMessage: string) => {
     setError(errorMessage);
-    setTimeout(() => {
-      setError('')
-    }, 5000)
-  }
+    setTimeout(() => setError(""), 5000);
+  };
 
   const continueLocally = async (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
     const trimmedName = name.trim();
-
     if (!trimmedName) {
       nameInputRef.current?.focus();
       return;
@@ -63,9 +58,8 @@ function Signup() {
       name: trimmedName,
       authMode: "local" as const,
     };
-
     dispatch(setUser(user));
-    await saveUser(user);
+    // No IndexedDB save – just go to project page
     navigate("/project");
   };
 
@@ -106,10 +100,8 @@ function Signup() {
         username: authResponse.user.username,
         authMode: "account" as const,
       };
-
       dispatch(setUser(userState));
-      await saveUser(userState);
-      await dispatch(syncAfterLogin()).unwrap();
+      // No sync – just navigate; ProjectPage will load data from API
       navigate("/project");
     } catch (err: unknown) {
       const message =
@@ -147,7 +139,7 @@ function Signup() {
                 name="name"
                 type="text"
                 value={name}
-                onChange={(event) => setName(event.target.value)}
+                onChange={(e) => setName(e.target.value)}
                 placeholder="Sankarsana"
                 autoComplete="given-name"
               />
@@ -157,10 +149,10 @@ function Signup() {
 
           <div>
             <div className="divider lg:mt-0">
-              <span>Or sign up only if you want sync. </span>
+              <span>Or sign up only if you want sync.</span>
             </div>
 
-            {error && <div className= "error-message">{error}</div>}
+            {error && <div className="error-message">{error}</div>}
 
             <form className="signup-form" onSubmit={handleSyncAccount}>
               <label htmlFor="username">Username</label>
@@ -170,7 +162,7 @@ function Signup() {
                 name="username"
                 type="text"
                 value={username}
-                onChange={(event) => setUsername(event.target.value)}
+                onChange={(e) => setUsername(e.target.value)}
                 placeholder="sankarsana3012"
                 autoComplete="username"
               />
@@ -183,7 +175,7 @@ function Signup() {
                 name="password"
                 type="password"
                 value={password}
-                onChange={(event) => setPassword(event.target.value)}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
               />
               <button type="submit">
